@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Liquidity Calculator Pro</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #060709;
+            color: #00ffcc;
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0f111a;
+            padding: 15px 25px;
+            border-bottom: 2px solid #00ffcc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .navbar brand { 
+            font-weight: bold; 
+            font-size: 14px; 
+            text-shadow: 0 0 5px #00ffcc;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .secret-trigger {
+            color: #fff;
+            cursor: pointer;
+            text-shadow: 0 0 8px #fff;
+            font-weight: 900;
+            padding: 0 4px;
+        }
+        .nav-buttons button {
+            background: none; border: 1px solid #00ffcc; color: #00ffcc;
+            padding: 5px 12px; margin-left: 10px; cursor: pointer; border-radius: 4px;
+        }
+        .nav-buttons button:hover { background-color: #00ffcc; color: #060709; }
+        
+        .container {
+            max-width: 550px; margin: 0 auto;
+            background-color: #0f111a; padding: 30px; border-radius: 16px;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.2); border: 2px solid #00ffcc;
+        }
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 13px; color: #00ffcc; }
+        input {
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #008877;
+            background-color: #060709; color: #fff; font-size: 15px; outline: none;
+        }
+        input:focus { border-color: #00ffcc; }
+        .btn {
+            width: 100%; padding: 14px; background-color: #00aa88; border: none;
+            border-radius: 8px; color: #060709; font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .btn:hover { background-color: #00ffcc; box-shadow: 0 0 15px rgba(0, 255, 204, 0.4); }
+        
+        /* Premium Lock */
+        .lock-screen {
+            text-align: center; padding: 40px 20px; color: #ff007f;
+            border: 1px dashed #ff007f; border-radius: 8px; background-color: rgba(255, 0, 127, 0.05);
+        }
+        
+        /* Jadval va Hududlar Uslubi (2-rasmdagidek) */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: center; font-size: 14px; }
+        th { color: #00ffcc; font-weight: bold; border-bottom: 2px solid #008877; }
+        
+        /* Aniq zonalar ranglari */
+        .row-sell-90 { background-color: rgba(247, 37, 133, 0.08); color: #f72585; font-weight: bold; }
+        .row-sell-70 { background-color: rgba(247, 37, 133, 0.04); color: #ff4c4c; }
+        .row-buy-70 { background-color: rgba(76, 255, 166, 0.04); color: #4cc9f0; }
+        .row-buy-90 { background-color: rgba(76, 255, 166, 0.08); color: #00ff66; font-weight: bold; }
+        
+        .range-text { text-align: center; color: #8892b0; font-size: 14px; margin: 15px 0; }
+
+        /* Admin Tabela */
+        .admin-table th, .admin-table td { border: 1px solid #008877; }
+        .action-btn { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-activate { background-color: #00ff66; color: #060709; }
+        .btn-deactivate { background-color: #ff007f; color: #fff; }
+
+        /* 💎 LIQUID GLASS EFFECT MODAL */
+        .glass-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(6, 7, 9, 0.4);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 9999;
+        }
+        .glass-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .glass-modal {
+            background: rgba(15, 17, 26, 0.65);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 255, 204, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 255, 204, 0.15);
+            padding: 30px; border-radius: 20px; max-width: 400px; width: 90%;
+            transform: scale(0.85); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+        .glass-overlay.active .glass-modal { transform: scale(1); }
+        .glass-modal h3 { color: #fff; margin-top: 0; font-size: 16px; margin-bottom: 20px; }
+        .glass-btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { background-color: rgba(255, 0, 127, 0.2); border: 1px solid #ff007f; color: #ff007f; }
+        .btn-cancel:hover { background-color: #ff007f; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <brand>Created by <span class="secret-trigger" onclick="openSecretAdmin()">OZOD</span> Trader</brand>
+    <div class="nav-buttons" id="nav-links"></div>
+</div>
+
+<div class="container">
+    <!-- AUTH PAGE (LOGIN & REGISTER) -->
+    <div id="page-auth" class="page active">
+        <h2>Tizimga Kirish</h2>
+        <div class="input-group">
+            <label>Foydalanuvchi nomi (Login):</label>
+            <input type="text" id="auth-username" placeholder="trader_aka">
+        </div>
+        <div class="input-group">
+            <label>Parol:</label>
+            <input type="password" id="auth-password" placeholder="******">
+        </div>
+        <button class="btn" id="auth-btn" onclick="handleAuth()">Kirish</button>
+        <p style="text-align:center; font-size:12px; cursor:pointer;" id="auth-toggle" onclick="toggleAuthMode()">Akkaunt yo'qmi? Ro'yxatdan o'tish</p>
+    </div>
+
+    <!-- CALCULATOR PAGE -->
+    <div id="page-calc" class="page">
+        <h2>Liquidity Level Calc</h2>
+        <div id="premium-locked" class="lock-screen" style="display: none;">
+            <h3>Premium Obuna Faol Emass! 🛑</h3>
+            <p>Kalkulyatorni ishlatish uchun adminga murojaat qiling.</p>
+            <p>ID: <strong id="lock-username" style="color:#fff"></strong></p>
+        </div>
+        <div id="calc-interface" style="display: none;">
+            <div style="background:#060709; padding:5px 10px; border-radius:5px; text-align:center; margin-bottom:15px; border:1px solid #00ffcc;">
+                <span style="color:#00ff66; font-weight:bold;">👑 PREMIUM FAOL</span>
+            </div>
+            <div class="input-group">
+                <label>High (Maksimal) narx:</label>
+                <input type="number" id="high" step="any" placeholder="4137.134">
+            </div>
+            <div class="input-group">
+                <label>Low (Minimal) narx:</label>
+                <input type="number" id="low" step="any" placeholder="4106.889">
+            </div>
+            <button class="btn" onclick="calculateZones()">Zonalarni Hisoblash</button>
+            
+            <!-- 📊 To'liq Matematik Jadval va Range Ko'rinishi (2-rasmdagidek) -->
+            <div id="calc-results" style="display:none; margin-top:20px;">
+                <div class="range-text" id="res-range">Joriy diapazon (Range): 0.000 punkt</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zona</th>
+                            <th>Foiz</th>
+                            <th>Kalit Narx</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="row-sell-90">
+                            <td>Sel zona</td>
+                            <td>90%</td>
+                            <td id="sell-90">0.000</td>
+                        </tr>
+                        <tr class="row-sell-70">
+                            <td>Sel zona</td>
+                            <td>70%</td>
+                            <td id="sell-70">0.000</td>
+                        </tr>
+                        <tr class="row-buy-70">
+                            <td>Бай zona</td>
+                            <td>70%</td>
+                            <td id="buy-70">0.000</td>
+                        </tr>
+                        <tr class="row-buy-90">
+                            <td>Бай zona</td>
+                            <td>90%</td>
+                            <td id="buy-90">0.000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="page-admin" class="page">
+        <h2>Admin Boshqaruv Paneli</h2>
+        <table class="admin-table">
+            <thead><tr><th>Login</th><th>Status</th><th>Amal</th></tr></thead>
+            <tbody id="admin-user-table"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 💎 LIQUID GLASS CUSTOM MODAL OYNASI -->
+<div class="glass-overlay" id="secretModalOverlay">
+    <div class="glass-modal">
+        <h3>Maxfiy kodni kiriting, Ozod aka:</h3>
+        <div class="input-group">
+            <input type="password" id="secretCodeInput" placeholder="•• ••• •• ••" style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+        </div>
+        <div class="glass-btn-group">
+            <button class="btn btn-cancel" onclick="closeSecretAdmin()">BEKOR QILISH</button>
+            <button class="btn" onclick="submitSecretCode()">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// LocalStorage tekshirish va adminni o'rnatish
+if (!localStorage.getItem('users')) {
+    const defaultUsers = { 'admin': { password: '123', isPremium: true, isAdmin: true } };
+    localStorage.setItem('users', JSON.stringify(defaultUsers));
+}
+
+let currentUser = null;
+let isLoginMode = true;
+
+function getUsers() { return JSON.parse(localStorage.getItem('users')); }
+function saveUsers(users) { localStorage.setItem('users', JSON.stringify(users)); }
+
+// --- SHISHA MODAL FUNKSIYALARI ---
+function openSecretAdmin() {
+    document.getElementById('secretCodeInput').value = '';
+    document.getElementById('secretModalOverlay').classList.add('active');
+    setTimeout(() => { document.getElementById('secretCodeInput').focus(); }, 300);
+}
+function closeSecretAdmin() { document.getElementById('secretModalOverlay').classList.remove('active'); }
+
+function submitSecretCode() {
+    const code = document.getElementById('secretCodeInput').value.trim();
+    if (code === "88 888 83 43" || code === "888888343") {
+        closeSecretAdmin();
+        currentUser = 'admin';
+        navigate('admin');
+        updateNavbar();
+        alert("Xush kelibsiz, Ozod aka!");
+    } else { alert("Noto'g'ri kod terildi, bro!"); }
+}
+
+document.getElementById('secretCodeInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') { submitSecretCode(); }
+});
+
+// --- 🛠️ TUZATILGAN REJIM ALMASHTIRUVCHI (TUGMA MUAMMOSI YECHIMI) ---
+function toggleAuthMode() {
+    isLoginMode = !isLoginMode;
+    
+    const authTitle = document.querySelector('#page-auth h2');
+    const authBtn = document.getElementById('auth-btn');
+    const authToggle = document.getElementById('auth-toggle');
+    
+    if (isLoginMode) {
+        authTitle.innerText = "Tizimga Kirish";
+        authBtn.innerText = "Kirish";
+        authToggle.innerText = "Akkaunt yo'qmi? Ro'yxatdan o'tish";
+    } else {
+        authTitle.innerText = "Ro'yxatdan O'tish";
+        authBtn.innerText = "Ro'yxatdan O'tish";
+        authToggle.innerText = "Akkauntingiz bormi? Kirish";
+    }
+}
+
+// --- KIRISH VA RO'YXATDAN O'TISH LOGIKASI ---
+function handleAuth() {
+    const userIn = document.getElementById('auth-username').value.trim().toLowerCase();
+    const passIn = document.getElementById('auth-password').value.trim();
+    let users = getUsers();
+    
+    if (!userIn || !passIn) { alert("Maydonlarni to'ldiring!"); return; }
+    
+    if (isLoginMode) {
+        if (users[userIn] && users[userIn].password === passIn) {
+            currentUser = userIn;
+            navigate(users[userIn].isAdmin ? 'admin' : 'calc');
+            updateNavbar();
+        } else { alert("Login yoki parol xato, bro!"); }
+    } else {
+        if (users[userIn]) { alert("Bu login band, boshqasini tanlang!"); return; }
+        
+        users[userIn] = { password: passIn, isPremium: false, isAdmin: false };
+        saveUsers(users);
+        alert("Muvaffaqiyatli ro'yxatdan o'tdingiz! Endi kirishingiz mumkin.");
+        toggleAuthMode();
+    }
+}
+
+function logout() { 
+    currentUser = null; 
+    navigate('auth'); 
+    updateNavbar(); 
+    document.getElementById('auth-username').value = '';
+    document.getElementById('auth-password').value = '';
+}
+
+function navigate(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    if (pageId === 'calc') { checkPremiumStatus(); }
+    if (pageId === 'admin') { renderAdminTable(); }
+}
+
+function updateNavbar() {
+    const navLinks = document.getElementById('nav-links');
+    if (!currentUser) { navLinks.innerHTML = ''; return; }
+    let users = getUsers();
+    let html = users[currentUser].isAdmin ? `<button onclick="navigate('admin')">Admin</button>` : '';
+    html += `<button onclick="navigate('calc')">Kalkulyator</button><button onclick="logout()" style="border-color:#ff007f; color:#ff007f;">Chiqish</button>`;
+    navLinks.innerHTML = html;
+}
+
+function checkPremiumStatus() {
+    let users = getUsers();
+    let userObj = users[currentUser];
+    if (userObj && (userObj.isPremium || userObj.isAdmin)) {
+        document.getElementById('calc-interface').style.display = 'block';
+        document.getElementById('premium-locked').style.display = 'none';
+    } else {
+        document.getElementById('calc-interface').style.display = 'none';
+        document.getElementById('premium-locked').style.display = 'block';
+        document.getElementById('lock-username').innerText = currentUser;
+    }
+}
+
+function renderAdminTable() {
+    let users = getUsers();
+    let tbody = document.getElementById('admin-user-table');
+    tbody.innerHTML = '';
+    for (let username in users) {
+        if (users[username].isAdmin) continue;
+        let statusText = users[username].isPremium ? `<span style="color:#00ff66;">ACTIVE</span>` : `<span style="color:#ff007f;">O'CHIK</span>`;
+        let actionBtn = users[username].isPremium ? `<button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button>` : `<button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Premium Berish</button>`;
+        tbody.innerHTML += `<tr><td>${username}</td><td>${statusText}</td><td>${actionBtn}</td></tr>`;
+    }
+}
+
+function togglePremium(username, status) {
+    let users = getUsers();
+    if (users[username]) { users[username].isPremium = status; saveUsers(users); renderAdminTable(); }
+}
+
+// 🧮 TO'G'RI SMART LIQUIDITY NUQTALARINI HISOBLASH FUNKSIYASI
+function calculateZones() {
+    const high = parseFloat(document.getElementById('high').value);
+    const low = parseFloat(document.getElementById('low').value);
+
+    if (isNaN(high) || isNaN(low) || high <= low) { alert("Narxlarni to'g'ri kiriting!"); return; }
+
+    const range = high - low;
+    document.getElementById('res-range').innerText = `Joriy diapazon (Range): ${range.toFixed(3)} punkt`;
+
+    // Haqiqiy formula bo'yicha hisob-kitob
+    const s90 = high + (range * 0.764);
+    const s70 = high + (range * 0.382);
+    const b70 = low - (range * 0.382);
+    const b90 = low - (range * 0.764);
+
+    document.getElementById('sell-90').innerText = s90.toFixed(3);
+    document.getElementById('sell-70').innerText = s70.toFixed(3);
+    document.getElementById('buy-70').innerText = b70.toFixed(3);
+    document.getElementById('buy-90').innerText = b90.toFixed(3);
+
+    document.getElementById('calc-results').style.display = 'block';
+}
+</script>
+</body>
+</html>
