@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Liquidity Calculator Pro (Cloud)</title>
+    <title>Lazer Point Pro (Cloud Live)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -16,114 +16,121 @@
         }
         .navbar {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 10px;
             align-items: center;
             background-color: #0f111a;
-            padding: 15px 25px;
-            border-bottom: 2px solid #00ffcc;
+            padding: 15px;
+            border: 2px solid rgba(0, 255, 204, 0.3);
             border-radius: 8px;
             margin-bottom: 20px;
         }
+        @media(min-width: 400px) {
+            .navbar { flex-direction: row; justify-content: space-between; }
+        }
         .navbar brand { 
             font-weight: bold; 
-            font-size: 14px; 
+            font-size: 13px; 
             text-shadow: 0 0 5px #00ffcc;
             letter-spacing: 1px;
             text-transform: uppercase;
+            color: #a0aec0;
         }
         .secret-trigger {
             color: #fff;
             cursor: pointer;
             text-shadow: 0 0 8px #fff;
             font-weight: 900;
-            padding: 0 4px;
         }
         .nav-buttons button {
             background: none; border: 1px solid #00ffcc; color: #00ffcc;
-            padding: 5px 12px; margin-left: 10px; cursor: pointer; border-radius: 4px;
+            padding: 5px 12px; margin-left: 5px; cursor: pointer; border-radius: 4px;
+            font-family: 'Consolas', monospace; font-size: 12px;
         }
         .nav-buttons button:hover { background-color: #00ffcc; color: #060709; }
         
         .container {
-            max-width: 550px; margin: 0 auto;
-            background-color: #0f111a; padding: 30px; border-radius: 16px;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.2); border: 2px solid #00ffcc;
+            max-width: 480px; margin: 0 auto;
+            background-color: #060709; padding: 25px 20px; border-radius: 16px;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.1); border: 2px solid #1a2333;
         }
         .page { display: none; }
         .page.active { display: block; }
         
-        h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; color: #00ffcc; font-size: 22px; margin-top: 10px; margin-bottom: 25px; }
         .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 13px; color: #00ffcc; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #8892b0; }
         input {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #008877;
-            background-color: #060709; color: #fff; font-size: 15px; outline: none;
+            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #1a2333;
+            background-color: #0f111a; color: #fff; font-size: 16px; outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
-        input:focus { border-color: #00ffcc; }
+        input:focus { border-color: #00ffcc; box-shadow: 0 0 10px rgba(0, 255, 204, 0.2); }
+        
         .btn {
-            width: 100%; padding: 14px; background-color: #00aa88; border: none;
+            width: 100%; padding: 14px; background-color: #00ffcc; border: none;
             border-radius: 8px; color: #060709; font-size: 15px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;
         }
-        .btn:hover { background-color: #00ffcc; box-shadow: 0 0 15px rgba(0, 255, 204, 0.4); }
+        .btn:hover { background-color: #00ffcc; box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); }
         
         .lock-screen {
             text-align: center; padding: 40px 20px; color: #ff007f;
-            border: 1px dashed #ff007f; border-radius: 8px; background-color: rgba(255, 0, 127, 0.05);
+            border: 2px dashed #ff007f; border-radius: 12px; background-color: rgba(255, 0, 127, 0.02);
         }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: center; font-size: 14px; }
-        th { color: #00ffcc; font-weight: bold; border-bottom: 2px solid #008877; }
+        .premium-badge {
+            border: 1px solid #00ffcc; color: #00ffcc; padding: 10px; text-align: center;
+            border-radius: 8px; font-weight: bold; font-size: 13px; margin-bottom: 20px;
+            letter-spacing: 1px; background: rgba(0, 255, 204, 0.02);
+        }
+        .lazer-box {
+            border-radius: 8px; padding: 15px; margin-top: 15px; text-align: center;
+        }
+        .lazer-sell { border: 1px solid #ff007f; background-color: rgba(255, 0, 127, 0.05); }
+        .lazer-buy { border: 1px solid #00ff66; background-color: rgba(0, 255, 102, 0.05); }
         
-        .row-sell-90 { background-color: rgba(247, 37, 133, 0.08); color: #f72585; font-weight: bold; }
-        .row-sell-70 { background-color: rgba(247, 37, 133, 0.04); color: #ff4c4c; }
-        .row-buy-70 { background-color: rgba(76, 255, 166, 0.04); color: #4cc9f0; }
-        .row-buy-90 { background-color: rgba(76, 255, 166, 0.08); color: #00ff66; font-weight: bold; }
+        .lazer-title { font-size: 11px; letter-spacing: 1px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
+        .lazer-sell .lazer-title { color: #ff007f; }
+        .lazer-buy .lazer-title { color: #00ff66; }
         
-        .range-text { text-align: center; color: #8892b0; font-size: 14px; margin: 15px 0; }
+        .lazer-price { font-size: 22px; font-weight: bold; color: #fff; letter-spacing: 1px; }
 
-        .admin-table th, .admin-table td { border: 1px solid #008877; }
-        .action-btn { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .admin-table th, .admin-table td { padding: 10px; text-align: center; font-size: 12px; border: 1px solid #1a2333; }
+        .admin-table th { color: #00ffcc; background-color: #0f111a; font-weight: bold; }
+        .admin-table td { background-color: #060709; }
+        
+        .action-btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; font-family: monospace; }
         .btn-activate { background-color: #00ff66; color: #060709; }
         .btn-deactivate { background-color: #ff007f; color: #fff; }
 
-        /* 💎 GLASS MODAL */
         .glass-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(6, 7, 9, 0.4);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: rgba(6, 7, 9, 0.6); backdrop-filter: blur(8px);
             display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 9999;
+            opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 9999;
         }
         .glass-overlay.active { opacity: 1; pointer-events: auto; }
-        
         .glass-modal {
-            background: rgba(15, 17, 26, 0.65);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(0, 255, 204, 0.3);
-            box-shadow: 0 20px 50px rgba(0, 255, 204, 0.15);
-            padding: 30px; border-radius: 20px; max-width: 400px; width: 90%;
-            transform: scale(0.85); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center;
+            background: rgba(15, 17, 26, 0.85); border: 2px solid rgba(0, 255, 204, 0.3);
+            padding: 25px; border-radius: 16px; max-width: 340px; width: 90%; text-align: center;
         }
-        .glass-overlay.active .glass-modal { transform: scale(1); }
-        .glass-modal h3 { color: #fff; margin-top: 0; font-size: 16px; margin-bottom: 20px; }
-        .glass-btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { background-color: rgba(255, 0, 127, 0.2); border: 1px solid #ff007f; color: #ff007f; }
-        .btn-cancel:hover { background-color: #ff007f; color: #fff; }
+        .glass-modal h3 { color: #fff; font-size: 15px; margin-bottom: 15px; text-transform: uppercase; }
+        .glass-btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-cancel { background-color: rgba(255, 0, 127, 0.1); border: 1px solid #ff007f; color: #ff007f; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <brand>Created by <span class="secret-trigger" onclick="openSecretAdmin()">OZOD</span> Trader</brand>
+    <brand>CREATED BY <span class="secret-trigger" onclick="openSecretAdmin()">OZOD</span> TRADER</brand>
     <div class="nav-buttons" id="nav-links"></div>
 </div>
 
 <div class="container">
-    <!-- AUTH PAGE -->
     <div id="page-auth" class="page active">
-        <h2>Tizimga Kirish</h2>
+        <h2>TIZIMGA KIRISH</h2>
         <div class="input-group">
             <label>Foydalanuvchi nomi (Login):</label>
             <input type="text" id="auth-username" placeholder="trader_aka">
@@ -133,93 +140,101 @@
             <input type="password" id="auth-password" placeholder="******">
         </div>
         <button class="btn" id="auth-btn" onclick="handleAuth()">Kirish</button>
-        <p style="text-align:center; font-size:12px; cursor:pointer;" id="auth-toggle" onclick="toggleAuthMode()">Akkaunt yo'qmi? Ro'yxatdan o'tish</p>
+        <p style="text-align:center; font-size:12px; color:#8892b0; cursor:pointer; margin-top:20px;" id="auth-toggle" onclick="toggleAuthMode()">Akkaunt yo'qmi? Ro'yxatdan o'tish</p>
     </div>
 
-    <!-- CALCULATOR PAGE -->
     <div id="page-calc" class="page">
-        <h2>Liquidity Level Calc</h2>
+        <h2>LAZER POINT KALKULYATOR</h2>
         <div id="premium-locked" class="lock-screen" style="display: none;">
-            <h3>Premium Obuna Faol Emass! 🛑</h3>
-            <p>Kalkulyatorni ishlatish uchun adminga murojaat qiling.</p>
-            <p>ID: <strong id="lock-username" style="color:#fff"></strong></p>
+            <h3>PREMIUM OBUNA FAOL EMAS! 🛑</h3>
+            <p style="font-size:13px; color:#a0aec0;">Kalkulyatorni faollashtirish uchun adminga yozing.</p>
+            <p style="font-size:13px;">Sizning ID: <strong id="lock-username" style="color:#fff"></strong></p>
         </div>
+        
         <div id="calc-interface" style="display: none;">
-            <div style="background:#060709; padding:5px 10px; border-radius:5px; text-align:center; margin-bottom:15px; border:1px solid #00ffcc;">
-                <span style="color:#00ff66; font-weight:bold;">👑 PREMIUM FAOL</span>
+            <div class="premium-badge">👑 PREMIUM FAOL</div>
+            <div class="input-group">
+                <label>High (Maksimal Narx):</label>
+                <input type="number" id="high" step="any" placeholder="4321.295">
             </div>
             <div class="input-group">
-                <label>High (Maksimal) narx:</label>
-                <input type="number" id="high" step="any" placeholder="4137.134">
+                <label>Low (Minimal Narx):</label>
+                <input type="number" id="low" step="any" placeholder="4251.566">
             </div>
-            <div class="input-group">
-                <label>Low (Minimal) narx:</label>
-                <input type="number" id="low" step="any" placeholder="4106.889">
-            </div>
-            <button class="btn" onclick="calculateZones()">Zonalarni Hisoblash</button>
+            <button class="btn" onclick="calculateZones()">Matematik Nuqtalarni Chiqarish</button>
             
             <div id="calc-results" style="display:none; margin-top:20px;">
-                <div class="range-text" id="res-range">Joriy diapazon (Range): 0.000 punkt</div>
-                <table>
-                    <thead><tr><th>Zona</th><th>Foiz</th><th>Kalit Narx</th></tr></thead>
-                    <tbody>
-                        <tr class="row-sell-90"><td>Sel zona</td><td>90%</td><td id="sell-90">0.000</td></tr>
-                        <tr class="row-sell-70"><td>Sel zona</td><td>70%</td><td id="sell-70">0.000</td></tr>
-                        <tr class="row-buy-70"><td>Бай zona</td><td>70%</td><td id="buy-70">0.000</td></tr>
-                        <tr class="row-buy-90"><td>Бай zona</td><td>90%</td><td id="buy-90">0.000</td></tr>
-                    </tbody>
-                </table>
+                <div class="lazer-box lazer-sell">
+                    <div class="lazer-title">🔴 LAZER SELL NUQTASI (90% Prob)</div>
+                    <div class="lazer-price" id="sell-90">0.000</div>
+                </div>
+                <div class="lazer-box lazer-buy">
+                    <div class="lazer-title">🟢 LAZER BUY NUQTASI (90% Prob)</div>
+                    <div class="lazer-price" id="buy-90">0.000</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ADMIN PANEL -->
     <div id="page-admin" class="page">
-        <h2>Admin Boshqaruv Paneli</h2>
-        <table class="admin-table">
-            <thead><tr><th>Login</th><th>Status</th><th>Amal</th></tr></thead>
-            <tbody id="admin-user-table"></tbody>
-        </table>
+        <h2>ADMIN PANELI</h2>
+        <div style="overflow-x:auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Login</th>
+                        <th>Oxirgi Faollik</th>
+                        <th>Status</th>
+                        <th>Amal</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-user-table"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<!-- 💎 LIQUID GLASS MODAL -->
 <div class="glass-overlay" id="secretModalOverlay">
     <div class="glass-modal">
         <h3>Maxfiy kodni kiriting, Ozod aka:</h3>
         <div class="input-group">
-            <input type="password" id="secretCodeInput" placeholder="•• ••• •• ••" style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+            <input type="password" id="secretCodeInput" placeholder="••••••••" style="text-align: center; font-size: 18px; letter-spacing: 2px;">
         </div>
         <div class="glass-btn-group">
-            <button class="btn btn-cancel" onclick="closeSecretAdmin()">BEKOR QILISH</button>
+            <button class="btn btn-cancel" onclick="closeSecretAdmin()">YOPISH</button>
             <button class="btn" onclick="submitSecretCode()">OK</button>
         </div>
     </div>
 </div>
 
 <script>
-// 🌐 CLOUD BASE (Sening umumiy onlayn bazang)
-const FIREBASE_URL = "https://lazerpoint-trader-default-rtdb.firebaseio.com/users";
+// 🚀 SIZNING REALTIME DATABASE HAVOLANGIZ TO'LIQ ULINDI, AKA:
+const FIREBASE_BASE_URL = "https://kalkulyator-25ebc-default-rtdb.firebaseio.com/"; 
 
+const FIREBASE_URL = FIREBASE_BASE_URL.endsWith('/') ? FIREBASE_BASE_URL + 'users' : FIREBASE_BASE_URL + '/users';
 let currentUser = null;
 let isLoginMode = true;
-let cloudUsers = {}; // Markaziy bazadagi odamlar shunda turadi
+let cloudUsers = {};
 
-// Bazadan ma'lumotlarni tortish
+function getFormattedTime() {
+    const d = new Date();
+    return `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
 async function fetchUsersFromCloud() {
+    if(FIREBASE_BASE_URL === "KOD_SHU_YERGA_YOZILADI") return;
     try {
         const response = await fetch(`${FIREBASE_URL}.json`);
         const data = await response.json();
         cloudUsers = data || {};
-        // Agar admin bazada yo'q bo'lsa avtomat qo'shish
         if (!cloudUsers['admin']) {
-            await saveUserToCloud('admin', { password: '123', isPremium: true, isAdmin: true });
+            await saveUserToCloud('admin', { password: '123', isPremium: true, isAdmin: true, lastLogin: '—' });
         }
-    } catch (e) { console.error("Baza bilan aloqa uzildi:", e); }
+    } catch (e) { console.error("Aloqa uzildi:", e); }
 }
 
-// Bazaga yangi odam qo'shish
 async function saveUserToCloud(username, userObj) {
+    if(!username || username === 'error' || FIREBASE_BASE_URL === "KOD_SHU_YERGA_YOZILADI") return;
     await fetch(`${FIREBASE_URL}/${username}.json`, {
         method: 'PUT',
         body: JSON.stringify(userObj)
@@ -227,7 +242,6 @@ async function saveUserToCloud(username, userObj) {
     await fetchUsersFromCloud();
 }
 
-// Sayt yuklanishi bilan bazani o'qish va har 5 sekundda yangilash
 window.onload = async () => {
     await fetchUsersFromCloud();
     setInterval(async () => {
@@ -235,7 +249,7 @@ window.onload = async () => {
         if (document.getElementById('page-admin').classList.contains('active')) {
             renderAdminTable();
         }
-    }, 5000); // Har 5 sekundda yangi odam bormi deb tekshiradi
+    }, 4000);
 };
 
 function openSecretAdmin() {
@@ -252,13 +266,8 @@ async function submitSecretCode() {
         currentUser = 'admin';
         navigate('admin');
         updateNavbar();
-        alert("Xush kelibsiz, Ozod aka!");
-    } else { alert("Noto'g'ri kod terildi, bro!"); }
+    } else { alert("Maxfiy kod noto'g'ri!"); }
 }
-
-document.getElementById('secretCodeInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') { submitSecretCode(); }
-});
 
 function toggleAuthMode() {
     isLoginMode = !isLoginMode;
@@ -266,28 +275,31 @@ function toggleAuthMode() {
     const authBtn = document.getElementById('auth-btn');
     const authToggle = document.getElementById('auth-toggle');
     if (isLoginMode) {
-        authTitle.innerText = "Tizimga Kirish"; authBtn.innerText = "Kirish"; authToggle.innerText = "Akkaunt yo'qmi? Ro'yxatdan o'tish";
+        authTitle.innerText = "TIZIMGA KIRISH"; authBtn.innerText = "Kirish"; authToggle.innerText = "Akkaunt yo'qmi? Ro'yxatdan o'tish";
     } else {
-        authTitle.innerText = "Ro'yxatdan O'tish"; authBtn.innerText = "Ro'yxatdan O'tish"; authToggle.innerText = "Akkauntingiz bormi? Kirish";
+        authTitle.innerText = "RO'YXATDAN O'TISH"; authBtn.innerText = "Ro'yxatdan O'tish"; authToggle.innerText = "Akkauntingiz bormi? Kirish";
     }
 }
 
 async function handleAuth() {
     const userIn = document.getElementById('auth-username').value.trim().toLowerCase();
     const passIn = document.getElementById('auth-password').value.trim();
-    if (!userIn || !passIn) { alert("Maydonlarni to'ldiring!"); return; }
+    if (!userIn || !passIn) { alert("To'ldiring!"); return; }
+    if (userIn === 'error' || userIn === 'null') { alert("Yaroqsiz login!"); return; }
     
-    await fetchUsersFromCloud(); // Oxirgi ro'yxatni olish
+    await fetchUsersFromCloud();
 
     if (isLoginMode) {
         if (cloudUsers[userIn] && cloudUsers[userIn].password === passIn) {
             currentUser = userIn;
+            cloudUsers[userIn].lastLogin = getFormattedTime();
+            await saveUserToCloud(userIn, cloudUsers[userIn]);
             navigate(cloudUsers[userIn].isAdmin ? 'admin' : 'calc');
             updateNavbar();
-        } else { alert("Login yoki parol xato, bro!"); }
+        } else { alert("Login yoki parol xato!"); }
     } else {
         if (cloudUsers[userIn]) { alert("Bu login band!"); return; }
-        let newUser = { password: passIn, isPremium: false, isAdmin: false };
+        let newUser = { password: passIn, isPremium: false, isAdmin: false, lastLogin: getFormattedTime() };
         await saveUserToCloud(userIn, newUser);
         alert("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
         toggleAuthMode();
@@ -327,10 +339,18 @@ function renderAdminTable() {
     let tbody = document.getElementById('admin-user-table');
     tbody.innerHTML = '';
     for (let username in cloudUsers) {
-        if (cloudUsers[username].isAdmin) continue;
-        let statusText = cloudUsers[username].isPremium ? `<span style="color:#00ff66;">ACTIVE</span>` : `<span style="color:#ff007f;">O'CHIK</span>`;
+        if (!username || username === 'error' || cloudUsers[username].isAdmin) continue;
+        
+        let loginTime = cloudUsers[username].lastLogin ? cloudUsers[username].lastLogin : '—';
+        let statusText = cloudUsers[username].isPremium ? `<span style="color:#00ff66; font-weight:bold;">ACTIVE</span>` : `<span style="color:#ff007f;">O'CHIK</span>`;
         let actionBtn = cloudUsers[username].isPremium ? `<button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button>` : `<button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Premium Berish</button>`;
-        tbody.innerHTML += `<tr><td>${username}</td><td>${statusText}</td><td>${actionBtn}</td></tr>`;
+        
+        tbody.innerHTML += `<tr>
+            <td><strong style="color:#fff;">${username}</strong></td>
+            <td style="color: #8892b0;">${loginTime}</td>
+            <td>${statusText}</td>
+            <td>${actionBtn}</td>
+        </tr>`;
     }
 }
 
@@ -346,12 +366,13 @@ function calculateZones() {
     const high = parseFloat(document.getElementById('high').value);
     const low = parseFloat(document.getElementById('low').value);
     if (isNaN(high) || isNaN(low) || high <= low) { alert("Narxlarni to'g'ri kiriting!"); return; }
+    
     const range = high - low;
-    document.getElementById('res-range').innerText = `Joriy diapazon (Range): ${range.toFixed(3)} punkt`;
-    document.getElementById('sell-90').innerText = (high + (range * 0.764)).toFixed(3);
-    document.getElementById('sell-70').innerText = (high + (range * 0.382)).toFixed(3);
-    document.getElementById('buy-70').innerText = (low - (range * 0.382)).toFixed(3);
-    document.getElementById('buy-90').innerText = (low - (range * 0.764)).toFixed(3);
+    
+    // Aniq Lazer Point formulalari (90% aniqlikda diapazon ichiga hisoblash):
+    document.getElementById('sell-90').innerText = (high - (range * 0.025742)).toFixed(3);
+    document.getElementById('buy-90').innerText = (low + (range * 0.025742)).toFixed(3);
+    
     document.getElementById('calc-results').style.display = 'block';
 }
 </script>
