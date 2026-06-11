@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lazer Point Pro (Cloud Live)</title>
+    <title>Ozod Trader Algorithm Pro</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
-            font-family: 'Consolas', 'Courier New', monospace;
-            background-color: #060709;
-            color: #00ffcc;
+            font-family: 'Consolas', 'Segoe UI', Tahoma, monospace;
+            background-color: #050508;
+            color: #e2e8f0;
             margin: 0;
             padding: 15px;
             min-height: 100vh;
@@ -21,7 +21,7 @@
             align-items: center;
             background-color: #0f111a;
             padding: 15px;
-            border: 2px solid rgba(0, 255, 204, 0.3);
+            border: 2px solid rgba(157, 78, 221, 0.3);
             border-radius: 8px;
             margin-bottom: 20px;
         }
@@ -31,7 +31,7 @@
         .navbar brand { 
             font-weight: bold; 
             font-size: 13px; 
-            text-shadow: 0 0 5px #00ffcc;
+            text-shadow: 0 0 5px #9d4ede;
             letter-spacing: 1px;
             text-transform: uppercase;
             color: #a0aec0;
@@ -43,88 +43,89 @@
             font-weight: 900;
         }
         .nav-buttons button {
-            background: none; border: 1px solid #00ffcc; color: #00ffcc;
+            background: none; border: 1px solid #9d4ede; color: #9d4ede;
             padding: 5px 12px; margin-left: 5px; cursor: pointer; border-radius: 4px;
             font-family: 'Consolas', monospace; font-size: 12px;
         }
-        .nav-buttons button:hover { background-color: #00ffcc; color: #060709; }
+        .nav-buttons button:hover { background-color: #9d4ede; color: #050508; }
         
         .container {
             max-width: 480px; margin: 0 auto;
-            background-color: #060709; padding: 25px 20px; border-radius: 16px;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.1); border: 2px solid #1a2333;
+            background-color: #0b0c10; padding: 25px 20px; border-radius: 20px;
+            box-shadow: 0 0 25px rgba(157, 78, 221, 0.2); border: 1px solid #9d4ede;
         }
         .page { display: none; }
         .page.active { display: block; }
         
-        h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; color: #00ffcc; font-size: 22px; margin-top: 10px; margin-bottom: 25px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; font-size: 13px; color: #8892b0; }
-        input {
-            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #1a2333;
-            background-color: #0f111a; color: #fff; font-size: 16px; outline: none;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; color: #9d4ede; font-size: 22px; margin-top: 10px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7b2cbf; font-size: 11px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .asset-selector { display: flex; gap: 10px; margin-bottom: 25px; }
+        .asset-btn {
+            flex: 1; padding: 12px; background-color: #161a1d; border: 1px solid #3c096c;
+            color: #b39ddb; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 13px; transition: all 0.3s ease;
         }
-        input:focus { border-color: #00ffcc; box-shadow: 0 0 10px rgba(0, 255, 204, 0.2); }
+        .asset-btn.active {
+            background-color: #9d4ede; border-color: #9d4ede; color: #050508; box-shadow: 0 0 15px rgba(157, 78, 221, 0.6);
+        }
+
+        .input-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #e0aaff; font-size: 13px; letter-spacing: 0.5px; }
+        input {
+            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #3c096c;
+            background-color: #161419; color: #fff; font-size: 16px; outline: none; transition: all 0.3s;
+        }
+        input:focus { border-color: #9d4ede; box-shadow: 0 0 8px rgba(157, 78, 221, 0.3); }
         
         .btn {
-            width: 100%; padding: 14px; background-color: #00ffcc; border: none;
-            border-radius: 8px; color: #060709; font-size: 15px; font-weight: bold; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;
+            width: 100%; padding: 14px; background-color: #7b2cbf; border: none;
+            border-radius: 10px; color: #fff; font-size: 15px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; box-shadow: 0 4px 12px rgba(123, 44, 191, 0.4);
         }
-        .btn:hover { background-color: #00ffcc; box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); }
+        .btn:hover { background-color: #9d4ede; box-shadow: 0 0 20px rgba(157, 78, 221, 0.4); }
         
         .lock-screen {
-            text-align: center; padding: 40px 20px; color: #ff007f;
-            border: 2px dashed #ff007f; border-radius: 12px; background-color: rgba(255, 0, 127, 0.02);
+            text-align: center; padding: 40px 20px; color: #f72585;
+            border: 2px dashed #f72585; border-radius: 12px; background-color: rgba(247, 37, 133, 0.02);
         }
-        
-        .premium-badge {
-            border: 1px solid #00ffcc; color: #00ffcc; padding: 10px; text-align: center;
-            border-radius: 8px; font-weight: bold; font-size: 13px; margin-bottom: 20px;
-            letter-spacing: 1px; background: rgba(0, 255, 204, 0.02);
-        }
-        
-        /* ZONALAR UCHUN STILLAR */
-        .lazer-box {
-            border-radius: 8px; padding: 12px; margin-top: 12px; text-align: center;
-        }
-        .sell-90 { border: 2px solid #ff0055; background-color: rgba(255, 0, 85, 0.07); }
-        .sell-70 { border: 1px dashed #ff5599; background-color: rgba(255, 85, 153, 0.04); }
-        .buy-70 { border: 1px dashed #55ff99; background-color: rgba(85, 255, 153, 0.04); }
-        .buy-90 { border: 2px solid #00ff66; background-color: rgba(0, 255, 102, 0.07); }
+
+        /* 💎 NEON JAVOB QUTILARI */
+        .lazer-box { border-radius: 8px; padding: 12px; margin-top: 12px; text-align: center; }
+        .sell-90 { border: 2px solid #f72585; background-color: rgba(247, 37, 133, 0.07); }
+        .sell-70 { border: 1px dashed #b5179e; background-color: rgba(181, 23, 158, 0.04); }
+        .buy-70 { border: 1px dashed #4895ef; background-color: rgba(72, 149, 239, 0.04); }
+        .buy-90 { border: 2px solid #4cc9f0; background-color: rgba(76, 201, 240, 0.07); }
         
         .lazer-title { font-size: 11px; letter-spacing: 1px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; }
-        .sell-90 .lazer-title { color: #ff0055; }
-        .sell-70 .lazer-title { color: #ff5599; }
-        .buy-70 .lazer-title { color: #55ff99; }
-        .buy-90 .lazer-title { color: #00ff66; }
-        
+        .sell-90 .lazer-title { color: #f72585; }
+        .sell-70 .lazer-title { color: #b5179e; }
+        .buy-70 .lazer-title { color: #4895ef; }
+        .buy-90 .lazer-title { color: #4cc9f0; }
         .lazer-price { font-size: 22px; font-weight: bold; color: #fff; letter-spacing: 1px; }
 
         .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .admin-table th, .admin-table td { padding: 10px; text-align: center; font-size: 12px; border: 1px solid #1a2333; }
-        .admin-table th { color: #00ffcc; background-color: #0f111a; font-weight: bold; }
-        .admin-table td { background-color: #060709; }
+        .admin-table th, .admin-table td { padding: 10px; text-align: center; font-size: 12px; border: 1px solid #240046; }
+        .admin-table th { color: #e0aaff; background-color: #10002b; font-weight: bold; }
+        .admin-table td { background-color: #0b0c10; }
         
         .action-btn { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; font-family: monospace; }
-        .btn-activate { background-color: #00ff66; color: #060709; }
-        .btn-deactivate { background-color: #ff007f; color: #fff; }
+        .btn-activate { background-color: #4cc9f0; color: #050508; }
+        .btn-deactivate { background-color: #f72585; color: #fff; }
 
         .glass-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(6, 7, 9, 0.6); backdrop-filter: blur(8px);
+            background: rgba(5, 5, 8, 0.6); backdrop-filter: blur(8px);
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 9999;
         }
         .glass-overlay.active { opacity: 1; pointer-events: auto; }
         .glass-modal {
-            background: rgba(15, 17, 26, 0.85); border: 2px solid rgba(0, 255, 204, 0.3);
+            background: rgba(16, 0, 43, 0.9); border: 2px solid rgba(157, 78, 221, 0.3);
             padding: 25px; border-radius: 16px; max-width: 340px; width: 90%; text-align: center;
         }
         .glass-modal h3 { color: #fff; font-size: 15px; margin-bottom: 15px; text-transform: uppercase; }
         .glass-btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-cancel { background-color: rgba(255, 0, 127, 0.1); border: 1px solid #ff007f; color: #ff007f; }
+        .btn-cancel { background-color: rgba(247, 37, 133, 0.1); border: 1px solid #f72585; color: #f72585; }
     </style>
 </head>
 <body>
@@ -138,6 +139,7 @@
     <!-- AUTH PAGE -->
     <div id="page-auth" class="page active">
         <h2>TIZIMGA KIRISH</h2>
+        <div class="subtitle">OZOD TRADER SYSTEM</div>
         <div class="input-group">
             <label>Foydalanuvchi nomi (Login):</label>
             <input type="text" id="auth-username" placeholder="trader_aka">
@@ -152,42 +154,47 @@
 
     <!-- CALCULATOR PAGE -->
     <div id="page-calc" class="page">
-        <h2>LAZER POINT KALKULYATOR</h2>
+        <h2>OZOD TRADER ALGORITHM</h2>
+        
         <div id="premium-locked" class="lock-screen" style="display: none;">
-            <h3>PREMIUM OBUNA FAOL EMAS! 🛑</h3>
+            <h3>OBUNA FAOL EMAS! 🛑</h3>
             <p style="font-size:13px; color:#a0aec0;">Kalkulyatorni faollashtirish uchun adminga yozing.</p>
             <p style="font-size:13px;">Sizning ID: <strong id="lock-username" style="color:#fff"></strong></p>
         </div>
         
         <div id="calc-interface" style="display: none;">
-            <div class="premium-badge">👑 PREMIUM FAOL</div>
+            <div class="asset-selector">
+                <button class="asset-btn active" id="btn-gold" onclick="setAsset('gold')">XAUUSD (Tilla)</button>
+                <button class="asset-btn" id="btn-fx" onclick="setAsset('fx')">EURUSD</button>
+            </div>
+
             <div class="input-group">
                 <label>High (Maksimal Narx):</label>
-                <input type="number" id="high" step="any" placeholder="4086.739">
+                <input type="number" id="high" step="any" placeholder="Masalan: 4351.628">
             </div>
             <div class="input-group">
                 <label>Low (Minimal Narx):</label>
-                <input type="number" id="low" step="any" placeholder="4079.385">
+                <input type="number" id="low" step="any" placeholder="Masalan: 4321.090">
             </div>
-            <button class="btn" onclick="calculateZones()">Matematik Nuqtalarni Chiqarish</button>
+            <button class="btn" onclick="runQuadraticAlgo()">Algorithm Hisoblash</button>
             
-            <!-- 4 TA ZONA NATIJALARI -->
             <div id="calc-results" style="display:none; margin-top:20px;">
+                <!-- DIAPAZON VA LIKVIDLIK HUDUDLARI YOZUVLARI TOZALANDI -->
                 <div class="lazer-box sell-90">
-                    <div class="lazer-title">🔴 LAZER SELL NUQTASI (90% PROB)</div>
-                    <div class="lazer-price" id="sell-90">0.000</div>
+                    <div class="lazer-title">🔴 Sell Nuqtasi (90% Prob)</div>
+                    <div class="lazer-price" id="q-s2">0.000</div>
                 </div>
                 <div class="lazer-box sell-70">
-                    <div class="lazer-title">💗 LAZER SELL NUQTASI (70% PROB)</div>
-                    <div class="lazer-price" id="sell-70">0.000</div>
+                    <div class="lazer-title">💗 Sell Nuqtasi (70% Prob)</div>
+                    <div class="lazer-price" id="q-s1">0.000</div>
                 </div>
                 <div class="lazer-box buy-70">
-                    <div class="lazer-title">💛 LAZER BUY NUQTASI (70% PROB)</div>
-                    <div class="lazer-price" id="buy-70">0.000</div>
+                    <div class="lazer-title">💛 Buy Nuqtasi (70% Prob)</div>
+                    <div class="lazer-price" id="q-b1">0.000</div>
                 </div>
                 <div class="lazer-box buy-90">
-                    <div class="lazer-title">🟢 LAZER BUY NUQTASI (90% PROB)</div>
-                    <div class="lazer-price" id="buy-90">0.000</div>
+                    <div class="lazer-title">🟢 Buy Nuqtasi (90% Prob)</div>
+                    <div class="lazer-price" id="q-b2">0.000</div>
                 </div>
             </div>
         </div>
@@ -196,6 +203,7 @@
     <!-- ADMIN PANEL -->
     <div id="page-admin" class="page">
         <h2>ADMIN PANELI</h2>
+        <div class="subtitle">Foydalanuvchilar Ro'yxati</div>
         <div style="overflow-x:auto;">
             <table class="admin-table">
                 <thead>
@@ -220,19 +228,19 @@
         </div>
         <div class="glass-btn-group">
             <button class="btn btn-cancel" onclick="closeSecretAdmin()">YOPISH</button>
-            <button class="btn" onclick="submitSecretCode()">OK</button>
+            <button class="btn" onclick="submitSecretCode()" style="margin-top:10px;">OK</button>
         </div>
     </div>
 </div>
 
 <script>
-// SIZNING FIREBASE JONLI BAZA MANZILINGIZ:
 const FIREBASE_BASE_URL = "https://kalkulyator-25ebc-default-rtdb.firebaseio.com/"; 
-
 const FIREBASE_URL = FIREBASE_BASE_URL.endsWith('/') ? FIREBASE_BASE_URL + 'users' : FIREBASE_BASE_URL + '/users';
+
 let currentUser = null;
 let isLoginMode = true;
 let cloudUsers = {};
+let assetType = 'gold';
 
 function getFormattedTime() {
     const d = new Date();
@@ -247,7 +255,7 @@ async function fetchUsersFromCloud() {
         if (!cloudUsers['admin']) {
             await saveUserToCloud('admin', { password: '123', isPremium: true, isAdmin: true, lastLogin: '—' });
         }
-    } catch (e) { console.error("Aloqa xatosi:", e); }
+    } catch (e) { console.error("Firebase bog'lanish xatosi:", e); }
 }
 
 async function saveUserToCloud(username, userObj) {
@@ -335,7 +343,7 @@ function updateNavbar() {
     const navLinks = document.getElementById('nav-links');
     if (!currentUser) { navLinks.innerHTML = ''; return; }
     let html = cloudUsers[currentUser].isAdmin ? `<button onclick="navigate('admin')">Admin</button>` : '';
-    html += `<button onclick="navigate('calc')">Kalkulyator</button><button onclick="logout()" style="border-color:#ff007f; color:#ff007f;">Chiqish</button>`;
+    html += `<button onclick="navigate('calc')">Kalkulyator</button><button onclick="logout()" style="border-color:#f72585; color:#f72585;">Chiqish</button>`;
     navLinks.innerHTML = html;
 }
 
@@ -358,8 +366,8 @@ function renderAdminTable() {
         if (!username || username === 'error' || cloudUsers[username].isAdmin) continue;
         
         let loginTime = cloudUsers[username].lastLogin ? cloudUsers[username].lastLogin : '—';
-        let statusText = cloudUsers[username].isPremium ? `<span style="color:#00ff66; font-weight:bold;">ACTIVE</span>` : `<span style="color:#ff007f;">O'CHIK</span>`;
-        let actionBtn = cloudUsers[username].isPremium ? `<button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button>` : `<button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Premium Berish</button>`;
+        let statusText = cloudUsers[username].isPremium ? `<span style="color:#4cc9f0; font-weight:bold;">ACTIVE</span>` : `<span style="color:#f72585;">O'CHIK</span>`;
+        let actionBtn = cloudUsers[username].isPremium ? `<button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button>` : `<button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Berish</button>`;
         
         tbody.innerHTML += `<tr>
             <td><strong style="color:#fff;">${username}</strong></td>
@@ -378,18 +386,48 @@ async function togglePremium(username, status) {
     }
 }
 
-function calculateZones() {
+function setAsset(type) {
+    assetType = type;
+    document.getElementById('btn-gold').classList.remove('active');
+    document.getElementById('btn-fx').classList.remove('active');
+    document.getElementById('btn-' + type).classList.add('active');
+    
+    const highInput = document.getElementById('high');
+    const lowInput = document.getElementById('low');
+    
+    if(type === 'gold') {
+        highInput.placeholder = "Masalan: 4351.628";
+        lowInput.placeholder = "Masalan: 4321.090";
+    } else {
+        highInput.placeholder = "Masalan: 1.08250";
+        lowInput.placeholder = "Masalan: 1.07950";
+    }
+    document.getElementById('calc-results').style.display = 'none';
+}
+
+function runQuadraticAlgo() {
     const high = parseFloat(document.getElementById('high').value);
     const low = parseFloat(document.getElementById('low').value);
-    if (isNaN(high) || isNaN(low) || high <= low) { alert("Narxlarni to'g'ri kiriting!"); return; }
+    const decimals = assetType === 'gold' ? 3 : 5;
     
+    if (isNaN(high) || isNaN(low) || high <= low) {
+        alert("Iltimos, narxlarni to'g'ri kiriting! High nuqta Low'dan baland bo'lishi shart.");
+        return;
+    }
+
     const range = high - low;
+    const quadraticMod = range * Math.sqrt(2); 
+    const extremalMod = range * Math.sqrt(3);  
+
+    const gravitySell1 = high + (quadraticMod * 0.236);
+    const gravitySell2 = high + (extremalMod * 0.382);
+    const gravityBuy1 = low - (quadraticMod * 0.236);
+    const gravityBuy2 = low - (extremalMod * 0.382);
     
-    // 📊 MATEMATIK HISOB-KITOB (70% va 90% aniqlikdagi Lazer Point zonalar)
-    document.getElementById('sell-90').innerText = (high - (range * 0.025742)).toFixed(3);
-    document.getElementById('sell-70').innerText = (high - (range * 0.235510)).toFixed(3);
-    document.getElementById('buy-70').innerText  = (low + (range * 0.235510)).toFixed(3);
-    document.getElementById('buy-90').innerText  = (low + (range * 0.025742)).toFixed(3);
+    document.getElementById('q-s2').innerText = gravitySell2.toFixed(decimals);
+    document.getElementById('q-s1').innerText = gravitySell1.toFixed(decimals);
+    document.getElementById('q-b1').innerText = gravityBuy1.toFixed(decimals);
+    document.getElementById('q-b2').innerText = gravityBuy2.toFixed(decimals);
     
     document.getElementById('calc-results').style.display = 'block';
 }
