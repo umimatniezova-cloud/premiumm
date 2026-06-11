@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Liquidity Calculator Pro</title>
+    <title>Smart Liquidity Calculator Pro (Cloud)</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -66,18 +66,15 @@
         }
         .btn:hover { background-color: #00ffcc; box-shadow: 0 0 15px rgba(0, 255, 204, 0.4); }
         
-        /* Premium Lock */
         .lock-screen {
             text-align: center; padding: 40px 20px; color: #ff007f;
             border: 1px dashed #ff007f; border-radius: 8px; background-color: rgba(255, 0, 127, 0.05);
         }
         
-        /* Jadval va Hududlar Uslubi (2-rasmdagidek) */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 12px; text-align: center; font-size: 14px; }
         th { color: #00ffcc; font-weight: bold; border-bottom: 2px solid #008877; }
         
-        /* Aniq zonalar ranglari */
         .row-sell-90 { background-color: rgba(247, 37, 133, 0.08); color: #f72585; font-weight: bold; }
         .row-sell-70 { background-color: rgba(247, 37, 133, 0.04); color: #ff4c4c; }
         .row-buy-70 { background-color: rgba(76, 255, 166, 0.04); color: #4cc9f0; }
@@ -85,13 +82,12 @@
         
         .range-text { text-align: center; color: #8892b0; font-size: 14px; margin: 15px 0; }
 
-        /* Admin Tabela */
         .admin-table th, .admin-table td { border: 1px solid #008877; }
         .action-btn { padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-activate { background-color: #00ff66; color: #060709; }
         .btn-deactivate { background-color: #ff007f; color: #fff; }
 
-        /* 💎 LIQUID GLASS EFFECT MODAL */
+        /* 💎 GLASS MODAL */
         .glass-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(6, 7, 9, 0.4);
@@ -125,7 +121,7 @@
 </div>
 
 <div class="container">
-    <!-- AUTH PAGE (LOGIN & REGISTER) -->
+    <!-- AUTH PAGE -->
     <div id="page-auth" class="page active">
         <h2>Tizimga Kirish</h2>
         <div class="input-group">
@@ -162,38 +158,15 @@
             </div>
             <button class="btn" onclick="calculateZones()">Zonalarni Hisoblash</button>
             
-            <!-- 📊 To'liq Matematik Jadval va Range Ko'rinishi (2-rasmdagidek) -->
             <div id="calc-results" style="display:none; margin-top:20px;">
                 <div class="range-text" id="res-range">Joriy diapazon (Range): 0.000 punkt</div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th>Zona</th>
-                            <th>Foiz</th>
-                            <th>Kalit Narx</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Zona</th><th>Foiz</th><th>Kalit Narx</th></tr></thead>
                     <tbody>
-                        <tr class="row-sell-90">
-                            <td>Sel zona</td>
-                            <td>90%</td>
-                            <td id="sell-90">0.000</td>
-                        </tr>
-                        <tr class="row-sell-70">
-                            <td>Sel zona</td>
-                            <td>70%</td>
-                            <td id="sell-70">0.000</td>
-                        </tr>
-                        <tr class="row-buy-70">
-                            <td>Бай zona</td>
-                            <td>70%</td>
-                            <td id="buy-70">0.000</td>
-                        </tr>
-                        <tr class="row-buy-90">
-                            <td>Бай zona</td>
-                            <td>90%</td>
-                            <td id="buy-90">0.000</td>
-                        </tr>
+                        <tr class="row-sell-90"><td>Sel zona</td><td>90%</td><td id="sell-90">0.000</td></tr>
+                        <tr class="row-sell-70"><td>Sel zona</td><td>70%</td><td id="sell-70">0.000</td></tr>
+                        <tr class="row-buy-70"><td>Бай zona</td><td>70%</td><td id="buy-70">0.000</td></tr>
+                        <tr class="row-buy-90"><td>Бай zona</td><td>90%</td><td id="buy-90">0.000</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -210,7 +183,7 @@
     </div>
 </div>
 
-<!-- 💎 LIQUID GLASS CUSTOM MODAL OYNASI -->
+<!-- 💎 LIQUID GLASS MODAL -->
 <div class="glass-overlay" id="secretModalOverlay">
     <div class="glass-modal">
         <h3>Maxfiy kodni kiriting, Ozod aka:</h3>
@@ -225,19 +198,46 @@
 </div>
 
 <script>
-// LocalStorage tekshirish va adminni o'rnatish
-if (!localStorage.getItem('users')) {
-    const defaultUsers = { 'admin': { password: '123', isPremium: true, isAdmin: true } };
-    localStorage.setItem('users', JSON.stringify(defaultUsers));
-}
+// 🌐 CLOUD BASE (Sening umumiy onlayn bazang)
+const FIREBASE_URL = "https://lazerpoint-trader-default-rtdb.firebaseio.com/users";
 
 let currentUser = null;
 let isLoginMode = true;
+let cloudUsers = {}; // Markaziy bazadagi odamlar shunda turadi
 
-function getUsers() { return JSON.parse(localStorage.getItem('users')); }
-function saveUsers(users) { localStorage.setItem('users', JSON.stringify(users)); }
+// Bazadan ma'lumotlarni tortish
+async function fetchUsersFromCloud() {
+    try {
+        const response = await fetch(`${FIREBASE_URL}.json`);
+        const data = await response.json();
+        cloudUsers = data || {};
+        // Agar admin bazada yo'q bo'lsa avtomat qo'shish
+        if (!cloudUsers['admin']) {
+            await saveUserToCloud('admin', { password: '123', isPremium: true, isAdmin: true });
+        }
+    } catch (e) { console.error("Baza bilan aloqa uzildi:", e); }
+}
 
-// --- SHISHA MODAL FUNKSIYALARI ---
+// Bazaga yangi odam qo'shish
+async function saveUserToCloud(username, userObj) {
+    await fetch(`${FIREBASE_URL}/${username}.json`, {
+        method: 'PUT',
+        body: JSON.stringify(userObj)
+    });
+    await fetchUsersFromCloud();
+}
+
+// Sayt yuklanishi bilan bazani o'qish va har 5 sekundda yangilash
+window.onload = async () => {
+    await fetchUsersFromCloud();
+    setInterval(async () => {
+        await fetchUsersFromCloud();
+        if (document.getElementById('page-admin').classList.contains('active')) {
+            renderAdminTable();
+        }
+    }, 5000); // Har 5 sekundda yangi odam bormi deb tekshiradi
+};
+
 function openSecretAdmin() {
     document.getElementById('secretCodeInput').value = '';
     document.getElementById('secretModalOverlay').classList.add('active');
@@ -245,7 +245,7 @@ function openSecretAdmin() {
 }
 function closeSecretAdmin() { document.getElementById('secretModalOverlay').classList.remove('active'); }
 
-function submitSecretCode() {
+async function submitSecretCode() {
     const code = document.getElementById('secretCodeInput').value.trim();
     if (code === "88 888 83 43" || code === "888888343") {
         closeSecretAdmin();
@@ -260,56 +260,41 @@ document.getElementById('secretCodeInput').addEventListener('keypress', function
     if (e.key === 'Enter') { submitSecretCode(); }
 });
 
-// --- 🛠️ TUZATILGAN REJIM ALMASHTIRUVCHI (TUGMA MUAMMOSI YECHIMI) ---
 function toggleAuthMode() {
     isLoginMode = !isLoginMode;
-    
     const authTitle = document.querySelector('#page-auth h2');
     const authBtn = document.getElementById('auth-btn');
     const authToggle = document.getElementById('auth-toggle');
-    
     if (isLoginMode) {
-        authTitle.innerText = "Tizimga Kirish";
-        authBtn.innerText = "Kirish";
-        authToggle.innerText = "Akkaunt yo'qmi? Ro'yxatdan o'tish";
+        authTitle.innerText = "Tizimga Kirish"; authBtn.innerText = "Kirish"; authToggle.innerText = "Akkaunt yo'qmi? Ro'yxatdan o'tish";
     } else {
-        authTitle.innerText = "Ro'yxatdan O'tish";
-        authBtn.innerText = "Ro'yxatdan O'tish";
-        authToggle.innerText = "Akkauntingiz bormi? Kirish";
+        authTitle.innerText = "Ro'yxatdan O'tish"; authBtn.innerText = "Ro'yxatdan O'tish"; authToggle.innerText = "Akkauntingiz bormi? Kirish";
     }
 }
 
-// --- KIRISH VA RO'YXATDAN O'TISH LOGIKASI ---
-function handleAuth() {
+async function handleAuth() {
     const userIn = document.getElementById('auth-username').value.trim().toLowerCase();
     const passIn = document.getElementById('auth-password').value.trim();
-    let users = getUsers();
-    
     if (!userIn || !passIn) { alert("Maydonlarni to'ldiring!"); return; }
     
+    await fetchUsersFromCloud(); // Oxirgi ro'yxatni olish
+
     if (isLoginMode) {
-        if (users[userIn] && users[userIn].password === passIn) {
+        if (cloudUsers[userIn] && cloudUsers[userIn].password === passIn) {
             currentUser = userIn;
-            navigate(users[userIn].isAdmin ? 'admin' : 'calc');
+            navigate(cloudUsers[userIn].isAdmin ? 'admin' : 'calc');
             updateNavbar();
         } else { alert("Login yoki parol xato, bro!"); }
     } else {
-        if (users[userIn]) { alert("Bu login band, boshqasini tanlang!"); return; }
-        
-        users[userIn] = { password: passIn, isPremium: false, isAdmin: false };
-        saveUsers(users);
-        alert("Muvaffaqiyatli ro'yxatdan o'tdingiz! Endi kirishingiz mumkin.");
+        if (cloudUsers[userIn]) { alert("Bu login band!"); return; }
+        let newUser = { password: passIn, isPremium: false, isAdmin: false };
+        await saveUserToCloud(userIn, newUser);
+        alert("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
         toggleAuthMode();
     }
 }
 
-function logout() { 
-    currentUser = null; 
-    navigate('auth'); 
-    updateNavbar(); 
-    document.getElementById('auth-username').value = '';
-    document.getElementById('auth-password').value = '';
-}
+function logout() { currentUser = null; navigate('auth'); updateNavbar(); }
 
 function navigate(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -321,15 +306,13 @@ function navigate(pageId) {
 function updateNavbar() {
     const navLinks = document.getElementById('nav-links');
     if (!currentUser) { navLinks.innerHTML = ''; return; }
-    let users = getUsers();
-    let html = users[currentUser].isAdmin ? `<button onclick="navigate('admin')">Admin</button>` : '';
+    let html = cloudUsers[currentUser].isAdmin ? `<button onclick="navigate('admin')">Admin</button>` : '';
     html += `<button onclick="navigate('calc')">Kalkulyator</button><button onclick="logout()" style="border-color:#ff007f; color:#ff007f;">Chiqish</button>`;
     navLinks.innerHTML = html;
 }
 
 function checkPremiumStatus() {
-    let users = getUsers();
-    let userObj = users[currentUser];
+    let userObj = cloudUsers[currentUser];
     if (userObj && (userObj.isPremium || userObj.isAdmin)) {
         document.getElementById('calc-interface').style.display = 'block';
         document.getElementById('premium-locked').style.display = 'none';
@@ -341,43 +324,34 @@ function checkPremiumStatus() {
 }
 
 function renderAdminTable() {
-    let users = getUsers();
     let tbody = document.getElementById('admin-user-table');
     tbody.innerHTML = '';
-    for (let username in users) {
-        if (users[username].isAdmin) continue;
-        let statusText = users[username].isPremium ? `<span style="color:#00ff66;">ACTIVE</span>` : `<span style="color:#ff007f;">O'CHIK</span>`;
-        let actionBtn = users[username].isPremium ? `<button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button>` : `<button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Premium Berish</button>`;
+    for (let username in cloudUsers) {
+        if (cloudUsers[username].isAdmin) continue;
+        let statusText = cloudUsers[username].isPremium ? `<span style="color:#00ff66;">ACTIVE</span>` : `<span style="color:#ff007f;">O'CHIK</span>`;
+        let actionBtn = cloudUsers[username].isPremium ? `<button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button>` : `<button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Premium Berish</button>`;
         tbody.innerHTML += `<tr><td>${username}</td><td>${statusText}</td><td>${actionBtn}</td></tr>`;
     }
 }
 
-function togglePremium(username, status) {
-    let users = getUsers();
-    if (users[username]) { users[username].isPremium = status; saveUsers(users); renderAdminTable(); }
+async function togglePremium(username, status) {
+    if (cloudUsers[username]) {
+        cloudUsers[username].isPremium = status;
+        await saveUserToCloud(username, cloudUsers[username]);
+        renderAdminTable();
+    }
 }
 
-// 🧮 TO'G'RI SMART LIQUIDITY NUQTALARINI HISOBLASH FUNKSIYASI
 function calculateZones() {
     const high = parseFloat(document.getElementById('high').value);
     const low = parseFloat(document.getElementById('low').value);
-
     if (isNaN(high) || isNaN(low) || high <= low) { alert("Narxlarni to'g'ri kiriting!"); return; }
-
     const range = high - low;
     document.getElementById('res-range').innerText = `Joriy diapazon (Range): ${range.toFixed(3)} punkt`;
-
-    // Haqiqiy formula bo'yicha hisob-kitob
-    const s90 = high + (range * 0.764);
-    const s70 = high + (range * 0.382);
-    const b70 = low - (range * 0.382);
-    const b90 = low - (range * 0.764);
-
-    document.getElementById('sell-90').innerText = s90.toFixed(3);
-    document.getElementById('sell-70').innerText = s70.toFixed(3);
-    document.getElementById('buy-70').innerText = b70.toFixed(3);
-    document.getElementById('buy-90').innerText = b90.toFixed(3);
-
+    document.getElementById('sell-90').innerText = (high + (range * 0.764)).toFixed(3);
+    document.getElementById('sell-70').innerText = (high + (range * 0.382)).toFixed(3);
+    document.getElementById('buy-70').innerText = (low - (range * 0.382)).toFixed(3);
+    document.getElementById('buy-90').innerText = (low - (range * 0.764)).toFixed(3);
     document.getElementById('calc-results').style.display = 'block';
 }
 </script>
