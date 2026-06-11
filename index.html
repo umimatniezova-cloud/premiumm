@@ -84,15 +84,21 @@
             border-radius: 8px; font-weight: bold; font-size: 13px; margin-bottom: 20px;
             letter-spacing: 1px; background: rgba(0, 255, 204, 0.02);
         }
-        .lazer-box {
-            border-radius: 8px; padding: 15px; margin-top: 15px; text-align: center;
-        }
-        .lazer-sell { border: 1px solid #ff007f; background-color: rgba(255, 0, 127, 0.05); }
-        .lazer-buy { border: 1px solid #00ff66; background-color: rgba(0, 255, 102, 0.05); }
         
-        .lazer-title { font-size: 11px; letter-spacing: 1px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
-        .lazer-sell .lazer-title { color: #ff007f; }
-        .lazer-buy .lazer-title { color: #00ff66; }
+        /* ZONALAR UCHUN STILLAR */
+        .lazer-box {
+            border-radius: 8px; padding: 12px; margin-top: 12px; text-align: center;
+        }
+        .sell-90 { border: 2px solid #ff0055; background-color: rgba(255, 0, 85, 0.07); }
+        .sell-70 { border: 1px dashed #ff5599; background-color: rgba(255, 85, 153, 0.04); }
+        .buy-70 { border: 1px dashed #55ff99; background-color: rgba(85, 255, 153, 0.04); }
+        .buy-90 { border: 2px solid #00ff66; background-color: rgba(0, 255, 102, 0.07); }
+        
+        .lazer-title { font-size: 11px; letter-spacing: 1px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; }
+        .sell-90 .lazer-title { color: #ff0055; }
+        .sell-70 .lazer-title { color: #ff5599; }
+        .buy-70 .lazer-title { color: #55ff99; }
+        .buy-90 .lazer-title { color: #00ff66; }
         
         .lazer-price { font-size: 22px; font-weight: bold; color: #fff; letter-spacing: 1px; }
 
@@ -129,6 +135,7 @@
 </div>
 
 <div class="container">
+    <!-- AUTH PAGE -->
     <div id="page-auth" class="page active">
         <h2>TIZIMGA KIRISH</h2>
         <div class="input-group">
@@ -143,6 +150,7 @@
         <p style="text-align:center; font-size:12px; color:#8892b0; cursor:pointer; margin-top:20px;" id="auth-toggle" onclick="toggleAuthMode()">Akkaunt yo'qmi? Ro'yxatdan o'tish</p>
     </div>
 
+    <!-- CALCULATOR PAGE -->
     <div id="page-calc" class="page">
         <h2>LAZER POINT KALKULYATOR</h2>
         <div id="premium-locked" class="lock-screen" style="display: none;">
@@ -155,27 +163,37 @@
             <div class="premium-badge">👑 PREMIUM FAOL</div>
             <div class="input-group">
                 <label>High (Maksimal Narx):</label>
-                <input type="number" id="high" step="any" placeholder="4321.295">
+                <input type="number" id="high" step="any" placeholder="4086.739">
             </div>
             <div class="input-group">
                 <label>Low (Minimal Narx):</label>
-                <input type="number" id="low" step="any" placeholder="4251.566">
+                <input type="number" id="low" step="any" placeholder="4079.385">
             </div>
             <button class="btn" onclick="calculateZones()">Matematik Nuqtalarni Chiqarish</button>
             
+            <!-- 4 TA ZONA NATIJALARI -->
             <div id="calc-results" style="display:none; margin-top:20px;">
-                <div class="lazer-box lazer-sell">
-                    <div class="lazer-title">🔴 LAZER SELL NUQTASI (90% Prob)</div>
+                <div class="lazer-box sell-90">
+                    <div class="lazer-title">🔴 LAZER SELL NUQTASI (90% PROB)</div>
                     <div class="lazer-price" id="sell-90">0.000</div>
                 </div>
-                <div class="lazer-box lazer-buy">
-                    <div class="lazer-title">🟢 LAZER BUY NUQTASI (90% Prob)</div>
+                <div class="lazer-box sell-70">
+                    <div class="lazer-title">💗 LAZER SELL NUQTASI (70% PROB)</div>
+                    <div class="lazer-price" id="sell-70">0.000</div>
+                </div>
+                <div class="lazer-box buy-70">
+                    <div class="lazer-title">💛 LAZER BUY NUQTASI (70% PROB)</div>
+                    <div class="lazer-price" id="buy-70">0.000</div>
+                </div>
+                <div class="lazer-box buy-90">
+                    <div class="lazer-title">🟢 LAZER BUY NUQTASI (90% PROB)</div>
                     <div class="lazer-price" id="buy-90">0.000</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- ADMIN PANEL -->
     <div id="page-admin" class="page">
         <h2>ADMIN PANELI</h2>
         <div style="overflow-x:auto;">
@@ -208,7 +226,7 @@
 </div>
 
 <script>
-// 🚀 SIZNING REALTIME DATABASE HAVOLANGIZ TO'LIQ ULINDI, AKA:
+// SIZNING FIREBASE JONLI BAZA MANZILINGIZ:
 const FIREBASE_BASE_URL = "https://kalkulyator-25ebc-default-rtdb.firebaseio.com/"; 
 
 const FIREBASE_URL = FIREBASE_BASE_URL.endsWith('/') ? FIREBASE_BASE_URL + 'users' : FIREBASE_BASE_URL + '/users';
@@ -222,7 +240,6 @@ function getFormattedTime() {
 }
 
 async function fetchUsersFromCloud() {
-    if(FIREBASE_BASE_URL === "KOD_SHU_YERGA_YOZILADI") return;
     try {
         const response = await fetch(`${FIREBASE_URL}.json`);
         const data = await response.json();
@@ -230,11 +247,11 @@ async function fetchUsersFromCloud() {
         if (!cloudUsers['admin']) {
             await saveUserToCloud('admin', { password: '123', isPremium: true, isAdmin: true, lastLogin: '—' });
         }
-    } catch (e) { console.error("Aloqa uzildi:", e); }
+    } catch (e) { console.error("Aloqa xatosi:", e); }
 }
 
 async function saveUserToCloud(username, userObj) {
-    if(!username || username === 'error' || FIREBASE_BASE_URL === "KOD_SHU_YERGA_YOZILADI") return;
+    if(!username || username === 'error') return;
     await fetch(`${FIREBASE_URL}/${username}.json`, {
         method: 'PUT',
         body: JSON.stringify(userObj)
@@ -285,7 +302,6 @@ async function handleAuth() {
     const userIn = document.getElementById('auth-username').value.trim().toLowerCase();
     const passIn = document.getElementById('auth-password').value.trim();
     if (!userIn || !passIn) { alert("To'ldiring!"); return; }
-    if (userIn === 'error' || userIn === 'null') { alert("Yaroqsiz login!"); return; }
     
     await fetchUsersFromCloud();
 
@@ -369,9 +385,11 @@ function calculateZones() {
     
     const range = high - low;
     
-    // Aniq Lazer Point formulalari (90% aniqlikda diapazon ichiga hisoblash):
+    // 📊 MATEMATIK HISOB-KITOB (70% va 90% aniqlikdagi Lazer Point zonalar)
     document.getElementById('sell-90').innerText = (high - (range * 0.025742)).toFixed(3);
-    document.getElementById('buy-90').innerText = (low + (range * 0.025742)).toFixed(3);
+    document.getElementById('sell-70').innerText = (high - (range * 0.235510)).toFixed(3);
+    document.getElementById('buy-70').innerText  = (low + (range * 0.235510)).toFixed(3);
+    document.getElementById('buy-90').innerText  = (low + (range * 0.025742)).toFixed(3);
     
     document.getElementById('calc-results').style.display = 'block';
 }
