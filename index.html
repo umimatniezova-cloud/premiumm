@@ -2,23 +2,17 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ozod Trader Algorithm Pro</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: 'Consolas', monospace; background-color: #050508; color: #e2e8f0; margin: 0; padding: 15px; min-height: 100vh; }
-        .container { max-width: 480px; margin: 0 auto; background-color: #0b0c10; padding: 25px 20px; border-radius: 20px; border: 1px solid #9d4ede; }
+        body { font-family: 'Consolas', monospace; background-color: #050508; color: #e2e8f0; padding: 20px; }
+        .container { max-width: 480px; margin: 0 auto; background-color: #0b0c10; padding: 20px; border-radius: 20px; border: 1px solid #9d4ede; }
         .page { display: none; } .page.active { display: block; }
-        h2 { text-align: center; color: #9d4ede; font-size: 22px; margin-bottom: 20px; text-transform: uppercase; }
-        input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #3c096c; background-color: #161419; color: #fff; }
-        .btn { width: 100%; padding: 14px; background-color: #7b2cbf; border: none; border-radius: 10px; color: #fff; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .snr-divider { text-align: center; margin: 25px 0; font-size: 12px; color: #7b2cbf; border-bottom: 1px dashed #3c096c; padding-bottom: 5px; }
-        .zone-box { border-radius: 8px; padding: 15px; margin-top: 10px; text-align: center; border: 1px solid #3c096c; }
-        .zone-res { border: 1px solid #ffb703; background: rgba(255, 183, 3, 0.05); }
-        .zone-sup { border: 1px solid #219ebc; background: rgba(33, 158, 188, 0.05); }
-        .zone-range { font-size: 18px; font-weight: bold; color: #fff; }
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-        .admin-table th, .admin-table td { border: 1px solid #240046; padding: 8px; text-align: center; }
+        h2 { text-align: center; color: #9d4ede; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #3c096c; background: #161419; color: #fff; }
+        .btn { width: 100%; padding: 12px; background: #7b2cbf; border: none; border-radius: 8px; color: #fff; cursor: pointer; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; color: #fff; }
+        .admin-table th, .admin-table td { border: 1px solid #3c096c; padding: 8px; text-align: center; }
+        .zone-box { padding: 10px; margin-top: 10px; border: 1px solid #3c096c; text-align: center; }
     </style>
 </head>
 <body>
@@ -29,31 +23,35 @@
         <h2>TIZIMGA KIRISH</h2>
         <input type="text" id="auth-username" placeholder="Login">
         <input type="password" id="auth-password" placeholder="Parol">
-        <button class="btn" id="auth-btn" onclick="handleAuth()">Kirish</button>
-        <p style="text-align:center; font-size:12px; cursor:pointer;" onclick="toggleAuthMode()">Akkaunt yo'qmi? Ro'yxatdan o'tish</p>
+        <button class="btn" onclick="handleAuth()">Kirish / Ro'yxatdan O'tish</button>
     </div>
 
     <!-- CALC PAGE -->
     <div id="page-calc" class="page">
         <h2>ALGORITHM</h2>
-        <input type="number" id="high" step="any" placeholder="High (Maksimal)">
-        <input type="number" id="low" step="any" placeholder="Low (Minimal)">
+        <input type="number" id="high" placeholder="High">
+        <input type="number" id="low" placeholder="Low">
         <button class="btn" onclick="calculate()">HISOBLASH</button>
         <div id="results" style="display:none;">
-            <div class="snr-divider">INTERNAL ZONES</div>
-            <div class="zone-box zone-res"><div class="zone-range" id="res-1">0.000 — 0.000</div></div>
-            <div class="zone-box zone-sup"><div class="zone-range" id="sup-1">0.000 — 0.000</div></div>
-            <div class="snr-divider">EXTERNAL ZONES</div>
-            <div class="zone-box zone-res"><div class="zone-range" id="res-2">0.000 — 0.000</div></div>
-            <div class="zone-box zone-sup"><div class="zone-range" id="sup-2">0.000 — 0.000</div></div>
+            <div class="zone-box">RES: <span id="res-2">0</span> | SUP: <span id="sup-2">0</span></div>
         </div>
+        <button id="admin-link" class="btn" style="margin-top:10px; display:none;" onclick="navigate('admin')">ADMIN PANEL</button>
+    </div>
+
+    <!-- ADMIN PAGE -->
+    <div id="page-admin" class="page">
+        <h2>ADMIN PANEL</h2>
+        <table class="admin-table">
+            <thead><tr><th>Login</th><th>Status</th><th>Amal</th></tr></thead>
+            <tbody id="admin-table-body"></tbody>
+        </table>
+        <button class="btn" onclick="navigate('calc')">Orqaga</button>
     </div>
 </div>
 
 <script>
 const DB_URL = "https://kalkulyator-25ebc-default-rtdb.firebaseio.com/users";
 let currentUser = null;
-let isLoginMode = true;
 
 async function handleAuth() {
     const userIn = document.getElementById('auth-username').value.trim().toLowerCase();
@@ -61,41 +59,46 @@ async function handleAuth() {
     const res = await fetch(`${DB_URL}.json`);
     const users = await res.json() || {};
 
-    if (isLoginMode) {
-        if (users[userIn] && users[userIn].password === passIn) {
+    if (users[userIn]) {
+        if (users[userIn].password === passIn) {
             currentUser = userIn;
-            document.getElementById('page-auth').classList.remove('active');
-            document.getElementById('page-calc').classList.add('active');
-        } else { alert("Login yoki parol xato!"); }
+            navigate(users[userIn].isAdmin ? 'admin' : 'calc');
+        } else { alert("Parol xato!"); }
     } else {
-        if (users[userIn]) { alert("Bu login band!"); }
-        else {
-            await fetch(`${DB_URL}/${userIn}.json`, { method: 'PUT', body: JSON.stringify({ password: passIn, isPremium: true }) });
-            alert("Ro'yxatdan o'tdingiz!");
-            location.reload();
-        }
+        await fetch(`${DB_URL}/${userIn}.json`, { method: 'PUT', body: JSON.stringify({ password: passIn, isPremium: false, isAdmin: false }) });
+        alert("Ro'yxatdan o'tdingiz!");
     }
 }
 
-function toggleAuthMode() {
-    isLoginMode = !isLoginMode;
-    document.getElementById('auth-btn').innerText = isLoginMode ? "Kirish" : "Ro'yxatdan O'tish";
+function navigate(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    if (pageId === 'admin') renderAdmin();
+    if (pageId === 'calc' && currentUser === 'admin') document.getElementById('admin-link').style.display = 'block';
+}
+
+async function renderAdmin() {
+    const res = await fetch(`${DB_URL}.json`);
+    const users = await res.json();
+    let tbody = document.getElementById('admin-table-body');
+    tbody.innerHTML = '';
+    for (let u in users) {
+        tbody.innerHTML += `<tr><td>${u}</td><td>${users[u].isPremium ? 'Premium' : 'Oddiy'}</td>
+        <td><button onclick="togglePremium('${u}', ${!users[u].isPremium})">${users[u].isPremium ? 'O\'chirish' : 'Berish'}</button></td></tr>`;
+    }
+}
+
+async function togglePremium(u, status) {
+    await fetch(`${DB_URL}/${u}/isPremium.json`, { method: 'PUT', body: JSON.stringify(status) });
+    renderAdmin();
 }
 
 function calculate() {
     const h = parseFloat(document.getElementById('high').value);
     const l = parseFloat(document.getElementById('low').value);
-    if (isNaN(h) || isNaN(l)) return;
     const rng = h - l;
-    
-    // Internal
-    document.getElementById('res-1').innerText = `${(h - (rng * 0.02)).toFixed(3)} — ${(h + (rng * 0.03)).toFixed(3)}`;
-    document.getElementById('sup-1').innerText = `${(l - (rng * 0.03)).toFixed(3)} — ${(l + (rng * 0.02)).toFixed(3)}`;
-    
-    // External (4217-4219 logikasi)
     document.getElementById('res-2').innerText = `${(h + (rng * 0.25)).toFixed(3)} — ${(h + (rng * 0.75)).toFixed(3)}`;
     document.getElementById('sup-2').innerText = `${(l - (rng * 0.75)).toFixed(3)} — ${(l - (rng * 0.25)).toFixed(3)}`;
-    
     document.getElementById('results').style.display = 'block';
 }
 </script>
