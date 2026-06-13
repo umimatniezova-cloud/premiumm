@@ -84,9 +84,20 @@
         }
         .btn:hover { background-color: #9d4ede; box-shadow: 0 0 20px rgba(157, 78, 221, 0.4); }
         
+        /* 🛑 BLOKLANGAN EKRAN VA TELEGRAM TUGMASI STILI */
         .lock-screen {
             text-align: center; padding: 40px 20px; color: #f72585;
             border: 2px dashed #f72585; border-radius: 12px; background-color: rgba(247, 37, 133, 0.02);
+        }
+        .btn-tg-admin {
+            display: inline-block; width: 85%; padding: 12px; margin-top: 15px;
+            background-color: transparent; border: 2px solid #f72585; color: #f72585;
+            border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 14px;
+            text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease;
+            box-shadow: 0 0 8px rgba(247, 37, 133, 0.2);
+        }
+        .btn-tg-admin:hover {
+            background-color: #f72585; color: #fff; box-shadow: 0 0 18px rgba(247, 37, 133, 0.6);
         }
 
         /* 💎 NEON JAVOB QUTILARI */
@@ -156,10 +167,12 @@
     <div id="page-calc" class="page">
         <h2>OZOD TRADER ALGORITHM</h2>
         
+        <!-- TELEGRAM ADMIN BOG'LANISH TUGMASI QO'SHILDI -->
         <div id="premium-locked" class="lock-screen" style="display: none;">
             <h3>OBUNA FAOL EMAS! 🛑</h3>
-            <p style="font-size:13px; color:#a0aec0;">Kalkulyatorni faollashtirish uchun adminga yozing.</p>
-            <p style="font-size:13px;">Sizning ID: <strong id="lock-username" style="color:#fff"></strong></p>
+            <p style="font-size:13px; color:#a0aec0; margin-bottom: 5px;">Kalkulyatorni faollashtirish uchun adminga yozing.</p>
+            <p style="font-size:13px; margin-bottom: 15px;">Sizning ID: <strong id="lock-username" style="color:#fff"></strong></p>
+            <a href="https://t.me/FX007S" target="_blank" class="btn-tg-admin">📩 Admin bilan bog'lanish</a>
         </div>
         
         <div id="calc-interface" style="display: none;">
@@ -179,7 +192,6 @@
             <button class="btn" onclick="runQuadraticAlgo()">Algorithm Hisoblash</button>
             
             <div id="calc-results" style="display:none; margin-top:20px;">
-                <!-- DIAPAZON VA LIKVIDLIK HUDUDLARI YOZUVLARI TOZALANDI -->
                 <div class="lazer-box sell-90">
                     <div class="lazer-title">🔴 Sell Nuqtasi (90% Prob)</div>
                     <div class="lazer-price" id="q-s2">0.000</div>
