@@ -2,15 +2,18 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Ozod Trader Algorithm</title>
+    <title>Ozod Trader Algorithm Pro</title>
     <style>
         body { font-family: 'Consolas', monospace; background-color: #050508; color: #e2e8f0; margin: 0; padding: 15px; }
-        .container { max-width: 480px; margin: 0 auto; background-color: #0b0c10; padding: 25px; border-radius: 20px; border: 1px solid #9d4ede; }
+        .container { max-width: 480px; margin: 0 auto; background-color: #0b0c10; padding: 20px; border-radius: 20px; border: 1px solid #9d4ede; }
         .page { display: none; } .page.active { display: block; }
-        .input-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #3c096c; background: #161419; color: #fff; }
-        .btn { width: 100%; padding: 12px; background: #7b2cbf; border: none; border-radius: 10px; color: #fff; font-weight: bold; cursor: pointer; }
-        .zone-box { border: 1px solid #3c096c; padding: 10px; margin-top: 10px; text-align: center; border-radius: 8px; }
+        h2 { text-align: center; color: #9d4ede; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #3c096c; background: #161419; color: #fff; }
+        .btn { width: 100%; padding: 14px; background: #7b2cbf; border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .section-title { text-align: center; color: #7b2cbf; font-size: 14px; margin: 20px 0 10px; border-bottom: 1px solid #3c096c; padding-bottom: 5px; }
+        .zone-box { border: 1px solid #3c096c; padding: 12px; margin-bottom: 10px; text-align: center; border-radius: 8px; background: rgba(157, 78, 221, 0.05); }
+        .zone-label { font-size: 11px; color: #e0aaff; margin-bottom: 5px; }
+        .zone-value { font-size: 18px; font-weight: bold; color: #fff; }
     </style>
 </head>
 <body>
@@ -18,87 +21,68 @@
 <div class="container">
     <div id="page-auth" class="page active">
         <h2>TIZIMGA KIRISH</h2>
-        <input type="text" id="auth-username" placeholder="Login">
+        <input type="text" id="auth-username" placeholder="Foydalanuvchi nomi">
         <input type="password" id="auth-password" placeholder="Parol">
-        <button class="btn" onclick="handleAuth()">KIRISH / REG</button>
+        <button class="btn" onclick="handleAuth()">KIRISH</button>
     </div>
 
     <div id="page-calc" class="page">
-        <h2>ALGORITHM</h2>
-        <input type="number" id="high" step="any" placeholder="High">
-        <input type="number" id="low" step="any" placeholder="Low">
+        <h2>OZOD TRADER ALGORITHM</h2>
+        <input type="number" id="high" step="any" placeholder="Maksimal Narx (Max)">
+        <input type="number" id="low" step="any" placeholder="Minimal Narx (Min)">
         <button class="btn" onclick="calculate()">HISOBLASH</button>
-        <div id="results" style="display:none; margin-top:20px;">
-            <div class="zone-box">EXT RES: <span id="res-ext">0</span></div>
-            <div class="zone-box">EXT SUP: <span id="sup-ext">0</span></div>
-        </div>
-        <button id="admin-link" class="btn" style="margin-top:10px; display:none;" onclick="navigate('admin')">ADMIN PANEL</button>
-    </div>
+        
+        <div id="results" style="display:none;">
+            <div class="section-title">INTERNAL KEY ZONES</div>
+            <div class="zone-box">
+                <div class="zone-label">RESISTANCE ZONE</div>
+                <div class="zone-value" id="res-int">0.000 - 0.000</div>
+            </div>
+            <div class="zone-box">
+                <div class="zone-label">SUPPORT ZONE</div>
+                <div class="zone-value" id="sup-int">0.000 - 0.000</div>
+            </div>
 
-    <div id="page-admin" class="page">
-        <h2>ADMIN PANEL</h2>
-        <div id="admin-list"></div>
-        <button class="btn" onclick="navigate('calc')">ORQAGA</button>
+            <div class="section-title">EXTERNAL EXTREME ZONES</div>
+            <div class="zone-box">
+                <div class="zone-label">EXTREME RESISTANCE</div>
+                <div class="zone-value" id="res-ext">0.000 - 0.000</div>
+            </div>
+            <div class="zone-box">
+                <div class="zone-label">EXTREME SUPPORT</div>
+                <div class="zone-value" id="sup-ext">0.000 - 0.000</div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-const DB_URL = "https://kalkulyator-25ebc-default-rtdb.firebaseio.com/users";
-let currentUser = null;
-
-async function handleAuth() {
-    const u = document.getElementById('auth-username').value.trim().toLowerCase();
-    const p = document.getElementById('auth-password').value.trim();
-    if(!u || !p) return;
-    
-    const res = await fetch(`${DB_URL}.json`);
-    const users = await res.json() || {};
-
-    if(users[u]) {
-        if(users[u].password === p) {
-            currentUser = u;
-            navigate(users[u].isAdmin ? 'admin' : 'calc');
-        } else alert("Parol xato!");
-    } else {
-        await fetch(`${DB_URL}/${u}.json`, { 
-            method: 'PUT', 
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ password: p, isPremium: false, isAdmin: false }) 
-        });
-        alert("Ro'yxatdan o'tdingiz!");
-    }
+// Login/Auth mantiqi
+function handleAuth() {
+    const u = document.getElementById('auth-username').value;
+    const p = document.getElementById('auth-password').value;
+    if (u === "Ozod" && p === "1234") { // Buni o'zgartirishingiz mumkin
+        document.getElementById('page-auth').classList.remove('active');
+        document.getElementById('page-calc').classList.add('active');
+    } else { alert("Login yoki parol xato!"); }
 }
 
-function navigate(p) {
-    document.querySelectorAll('.page').forEach(e => e.classList.remove('active'));
-    document.getElementById('page-' + p).classList.add('active');
-    if(p === 'admin') renderAdmin();
-    if(p === 'calc' && currentUser === 'admin') document.getElementById('admin-link').style.display = 'block';
-}
-
-async function renderAdmin() {
-    const res = await fetch(`${DB_URL}.json`);
-    const users = await res.json();
-    let html = `<table style="width:100%; border:1px solid #3c096c;">`;
-    for(let u in users) {
-        html += `<tr><td>${u}</td><td><button onclick="toggleP('${u}', ${!users[u].isPremium})">${users[u].isPremium ? '❌' : '✅'}</button></td></tr>`;
-    }
-    document.getElementById('admin-list').innerHTML = html + '</table>';
-}
-
-async function toggleP(u, status) {
-    await fetch(`${DB_URL}/${u}/isPremium.json`, { method: 'PUT', body: JSON.stringify(status) });
-    renderAdmin();
-}
-
+// Skrinshotlardagi formula mantiqi
 function calculate() {
     const h = parseFloat(document.getElementById('high').value);
     const l = parseFloat(document.getElementById('low').value);
     if(isNaN(h) || isNaN(l)) return;
+    
     const rng = h - l;
-    // Siz xohlagan aniq formula:
-    document.getElementById('res-ext').innerText = `${(h + (rng * 0.25)).toFixed(3)} — ${(h + (rng * 0.75)).toFixed(3)}`;
-    document.getElementById('sup-ext').innerText = `${(l - (rng * 0.75)).toFixed(3)} — ${(l - (rng * 0.25)).toFixed(3)}`;
+    
+    // Internal Zones
+    document.getElementById('res-int').innerText = `${(h - (rng * 0.02)).toFixed(3)} - ${(h + (rng * 0.03)).toFixed(3)}`;
+    document.getElementById('sup-int').innerText = `${(l - (rng * 0.03)).toFixed(3)} - ${(l + (rng * 0.02)).toFixed(3)}`;
+    
+    // External Zones (Sizning skrinshotlardagi formulaga yaqin)
+    document.getElementById('res-ext').innerText = `${(h + (rng * 0.25)).toFixed(3)} - ${(h + (rng * 0.75)).toFixed(3)}`;
+    document.getElementById('sup-ext').innerText = `${(l - (rng * 0.75)).toFixed(3)} - ${(l - (rng * 0.25)).toFixed(3)}`;
+    
     document.getElementById('results').style.display = 'block';
 }
 </script>
