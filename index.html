@@ -2,17 +2,15 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Ozod Trader Algorithm Pro</title>
+    <title>Ozod Trader Algorithm</title>
     <style>
         body { font-family: 'Consolas', monospace; background-color: #050508; color: #e2e8f0; margin: 0; padding: 15px; }
-        .container { max-width: 480px; margin: 0 auto; background-color: #0b0c10; padding: 20px; border-radius: 20px; border: 1px solid #9d4ede; }
+        .container { max-width: 480px; margin: 0 auto; background-color: #0b0c10; padding: 25px; border-radius: 20px; border: 1px solid #9d4ede; }
         .page { display: none; } .page.active { display: block; }
-        h2 { text-align: center; color: #9d4ede; }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #3c096c; background: #161419; color: #fff; }
-        .btn { width: 100%; padding: 12px; background: #7b2cbf; border: none; border-radius: 8px; color: #fff; cursor: pointer; text-transform: uppercase; }
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; color: #fff; }
-        .admin-table th, .admin-table td { border: 1px solid #3c096c; padding: 8px; text-align: center; }
-        .zone-box { padding: 10px; margin-top: 10px; border: 1px solid #3c096c; text-align: center; }
+        .input-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #3c096c; background: #161419; color: #fff; }
+        .btn { width: 100%; padding: 12px; background: #7b2cbf; border: none; border-radius: 10px; color: #fff; font-weight: bold; cursor: pointer; }
+        .zone-box { border: 1px solid #3c096c; padding: 10px; margin-top: 10px; text-align: center; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -30,19 +28,16 @@
         <input type="number" id="high" step="any" placeholder="High">
         <input type="number" id="low" step="any" placeholder="Low">
         <button class="btn" onclick="calculate()">HISOBLASH</button>
-        <div id="results" style="display:none; margin-top:10px;">
-            <div class="zone-box">RESISTANCE: <span id="res-2">0</span></div>
-            <div class="zone-box">SUPPORT: <span id="sup-2">0</span></div>
+        <div id="results" style="display:none; margin-top:20px;">
+            <div class="zone-box">EXT RES: <span id="res-ext">0</span></div>
+            <div class="zone-box">EXT SUP: <span id="sup-ext">0</span></div>
         </div>
         <button id="admin-link" class="btn" style="margin-top:10px; display:none;" onclick="navigate('admin')">ADMIN PANEL</button>
     </div>
 
     <div id="page-admin" class="page">
         <h2>ADMIN PANEL</h2>
-        <table class="admin-table">
-            <thead><tr><th>Login</th><th>Status</th><th>Amal</th></tr></thead>
-            <tbody id="admin-table-body"></tbody>
-        </table>
+        <div id="admin-list"></div>
         <button class="btn" onclick="navigate('calc')">ORQAGA</button>
     </div>
 </div>
@@ -52,44 +47,43 @@ const DB_URL = "https://kalkulyator-25ebc-default-rtdb.firebaseio.com/users";
 let currentUser = null;
 
 async function handleAuth() {
-    const userIn = document.getElementById('auth-username').value.trim().toLowerCase();
-    const passIn = document.getElementById('auth-password').value.trim();
-    if(!userIn || !passIn) return alert("Login/Parol kiriting!");
+    const u = document.getElementById('auth-username').value.trim().toLowerCase();
+    const p = document.getElementById('auth-password').value.trim();
+    if(!u || !p) return;
     
     const res = await fetch(`${DB_URL}.json`);
     const users = await res.json() || {};
 
-    if (users[userIn]) {
-        if (users[userIn].password === passIn) {
-            currentUser = userIn;
-            navigate(users[userIn].isAdmin ? 'admin' : 'calc');
-        } else { alert("Parol xato!"); }
+    if(users[u]) {
+        if(users[u].password === p) {
+            currentUser = u;
+            navigate(users[u].isAdmin ? 'admin' : 'calc');
+        } else alert("Parol xato!");
     } else {
-        await fetch(`${DB_URL}/${userIn}.json`, { 
+        await fetch(`${DB_URL}/${u}.json`, { 
             method: 'PUT', 
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ password: passIn, isPremium: false, isAdmin: false }) 
+            body: JSON.stringify({ password: p, isPremium: false, isAdmin: false }) 
         });
         alert("Ro'yxatdan o'tdingiz!");
     }
 }
 
 function navigate(p) {
-    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(e => e.classList.remove('active'));
     document.getElementById('page-' + p).classList.add('active');
-    if (p === 'admin') renderAdmin();
-    if (p === 'calc' && currentUser === 'admin') document.getElementById('admin-link').style.display = 'block';
+    if(p === 'admin') renderAdmin();
+    if(p === 'calc' && currentUser === 'admin') document.getElementById('admin-link').style.display = 'block';
 }
 
 async function renderAdmin() {
     const res = await fetch(`${DB_URL}.json`);
     const users = await res.json();
-    let tbody = document.getElementById('admin-table-body');
-    tbody.innerHTML = '';
-    for (let u in users) {
-        tbody.innerHTML += `<tr><td>${u}</td><td>${users[u].isPremium ? 'Premium' : 'Oddiy'}</td>
-        <td><button onclick="toggleP('${u}', ${!users[u].isPremium})">${users[u].isPremium ? 'O\'chirish' : 'Berish'}</button></td></tr>`;
+    let html = `<table style="width:100%; border:1px solid #3c096c;">`;
+    for(let u in users) {
+        html += `<tr><td>${u}</td><td><button onclick="toggleP('${u}', ${!users[u].isPremium})">${users[u].isPremium ? '❌' : '✅'}</button></td></tr>`;
     }
+    document.getElementById('admin-list').innerHTML = html + '</table>';
 }
 
 async function toggleP(u, status) {
@@ -102,9 +96,9 @@ function calculate() {
     const l = parseFloat(document.getElementById('low').value);
     if(isNaN(h) || isNaN(l)) return;
     const rng = h - l;
-    // External zona formulasi (0.25 - 0.75)
-    document.getElementById('res-2').innerText = `${(h + (rng * 0.25)).toFixed(3)} — ${(h + (rng * 0.75)).toFixed(3)}`;
-    document.getElementById('sup-2').innerText = `${(l - (rng * 0.75)).toFixed(3)} — ${(l - (rng * 0.25)).toFixed(3)}`;
+    // Siz xohlagan aniq formula:
+    document.getElementById('res-ext').innerText = `${(h + (rng * 0.25)).toFixed(3)} — ${(h + (rng * 0.75)).toFixed(3)}`;
+    document.getElementById('sup-ext').innerText = `${(l - (rng * 0.75)).toFixed(3)} — ${(l - (rng * 0.25)).toFixed(3)}`;
     document.getElementById('results').style.display = 'block';
 }
 </script>
