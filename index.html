@@ -174,8 +174,9 @@
         
         <div id="calc-interface" style="display: none;">
             <div class="asset-selector">
-                <button class="asset-btn active" id="btn-gold" onclick="setAsset('gold')">XAUUSD (Tilla)</button>
+                <button class="asset-btn active" id="btn-gold" onclick="setAsset('gold')">XAUUSD</button>
                 <button class="asset-btn" id="btn-fx" onclick="setAsset('fx')">EURUSD</button>
+                <button class="asset-btn" id="btn-btc" onclick="setAsset('btc')">BTCUSD</button>
             </div>
 
             <div class="input-group">
@@ -242,7 +243,6 @@
 </div>
 
 <script>
-// CORS va so'rovlar bloklanishining oldini olish uchun bazaning to'liq va aniq manzili
 const FIREBASE_DB_URL = "https://kalkulyator-25ebc-default-rtdb.firebaseio.com/users";
 
 let currentUser = null;
@@ -300,7 +300,6 @@ async function deleteUserFromCloud(username) {
 
 window.onload = async () => {
     await fetchUsersFromCloud();
-    // Har 4 soniyada admin paneldagi ro'yxat avtomatik yangilanib turadi
     setInterval(async () => {
         await fetchUsersFromCloud();
         if (document.getElementById('page-admin').classList.contains('active')) {
@@ -433,6 +432,7 @@ function setAsset(type) {
     assetType = type;
     document.getElementById('btn-gold').classList.remove('active');
     document.getElementById('btn-fx').classList.remove('active');
+    document.getElementById('btn-btc').classList.remove('active');
     document.getElementById('btn-' + type).classList.add('active');
     
     const highInput = document.getElementById('high');
@@ -441,36 +441,41 @@ function setAsset(type) {
     if(type === 'gold') {
         highInput.placeholder = "Masalan: 4351.628";
         lowInput.placeholder = "Masalan: 4321.090";
-    } else {
+    } else if(type === 'fx') {
         highInput.placeholder = "Masalan: 1.08250";
         lowInput.placeholder = "Masalan: 1.07950";
+    } else {
+        highInput.placeholder = "Masalan: 65000.00";
+        lowInput.placeholder = "Masalan: 64000.00";
     }
     document.getElementById('calc-results').style.display = 'none';
 }
 
+// Gann Square 9 Algoritmi
 function runQuadraticAlgo() {
     const high = parseFloat(document.getElementById('high').value);
     const low = parseFloat(document.getElementById('low').value);
-    const decimals = assetType === 'gold' ? 3 : 5;
+    
+    const decimals = assetType === 'gold' ? 3 : (assetType === 'btc' ? 2 : 5);
     
     if (isNaN(high) || isNaN(low) || high <= low) {
-        alert("Iltimos, narxlarni to'g'ri kiriting! High nuqta Low'dan baland bo'lishi shart.");
+        alert("Iltimos, narxlarni to'g'ri kiriting!");
         return;
     }
 
-    const range = high - low;
-    const quadraticMod = range * Math.sqrt(2); 
-    const extremalMod = range * Math.sqrt(3);  
-
-    const gravitySell1 = high + (quadraticMod * 0.236);
-    const gravitySell2 = high + (extremalMod * 0.382);
-    const gravityBuy1 = low - (quadraticMod * 0.236);
-    const gravityBuy2 = low - (extremalMod * 0.382);
+    const sqrtHigh = Math.sqrt(high);
+    const sqrtLow = Math.sqrt(low);
+    const step = 0.125; 
     
-    document.getElementById('q-s2').innerText = gravitySell2.toFixed(decimals);
-    document.getElementById('q-s1').innerText = gravitySell1.toFixed(decimals);
-    document.getElementById('q-b1').innerText = gravityBuy1.toFixed(decimals);
-    document.getElementById('q-b2').innerText = gravityBuy2.toFixed(decimals);
+    const sell2 = Math.pow(sqrtHigh + (step * 2), 2);
+    const sell1 = Math.pow(sqrtHigh + step, 2);
+    const buy1 = Math.pow(sqrtLow - step, 2);
+    const buy2 = Math.pow(sqrtLow - (step * 2), 2);
+    
+    document.getElementById('q-s2').innerText = sell2.toFixed(decimals);
+    document.getElementById('q-s1').innerText = sell1.toFixed(decimals);
+    document.getElementById('q-b1').innerText = buy1.toFixed(decimals);
+    document.getElementById('q-b2').innerText = buy2.toFixed(decimals);
     
     document.getElementById('calc-results').style.display = 'block';
 }
