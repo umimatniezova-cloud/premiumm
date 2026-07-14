@@ -86,7 +86,8 @@
         
         .lock-screen {
             text-align: center; padding: 40px 20px; color: #f72585;
-            border: 2px dashed #f72585; border-radius: 12px; background-color: rgba(247, 37, 133, 0.02);
+
+border: 2px dashed #f72585; border-radius: 12px; background-color: rgba(247, 37, 133, 0.02);
         }
         .btn-tg-admin {
             display: inline-block; width: 85%; padding: 12px; margin-top: 15px;
@@ -152,11 +153,12 @@
         <div class="subtitle">OZOD TRADER SYSTEM</div>
         <div class="input-group">
             <label>Foydalanuvchi nomi (Login):</label>
-            <input type="text" id="auth-username" placeholder="trader_aka">
+
+<input type="text" id="auth-username" placeholder="trader_aka">
         </div>
         <div class="input-group">
             <label>Parol:</label>
-            <input type="password" id="auth-password" placeholder="******">
+            <input type="password" id="auth-password" placeholder="**">
         </div>
         <button class="btn" id="auth-btn" onclick="handleAuth()">Kirish</button>
         <p style="text-align:center; font-size:12px; color:#8892b0; cursor:pointer; margin-top:20px;" id="auth-toggle" onclick="toggleAuthMode()">Akkaunt yo'qmi? Ro'yxatdan o'tish</p>
@@ -233,7 +235,8 @@
         <h3>Maxfiy kodni kiriting, Ozod aka:</h3>
         <div class="input-group">
             <input type="password" id="secretCodeInput" placeholder="••••••••" style="text-align: center; font-size: 18px; letter-spacing: 2px;">
-        </div>
+
+</div>
         <div class="glass-btn-group">
             <button class="btn btn-cancel" onclick="closeSecretAdmin()">YOPISH</button>
             <button class="btn" onclick="submitSecretCode()" style="margin-top:10px;">OK</button>
@@ -252,12 +255,12 @@ let assetType = 'gold';
 
 function getFormattedTime() {
     const d = new Date();
-    return `${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    return ${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')};
 }
 
 async function fetchUsersFromCloud() {
     try {
-        const response = await fetch(`${FIREBASE_DB_URL}.json`);
+        const response = await fetch(${FIREBASE_DB_URL}.json);
         if (!response.ok) throw new Error("Tarmoq xatosi");
         const data = await response.json();
         cloudUsers = data || {};
@@ -272,7 +275,7 @@ async function fetchUsersFromCloud() {
 async function saveUserToCloud(username, userObj) {
     if(!username || username === 'error') return;
     try {
-        await fetch(`${FIREBASE_DB_URL}/${username}.json`, {
+        await fetch(${FIREBASE_DB_URL}/${username}.json, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userObj)
@@ -286,7 +289,7 @@ async function saveUserToCloud(username, userObj) {
 async function deleteUserFromCloud(username) {
     if(!username || username === 'admin') return;
     try {
-        await fetch(`${FIREBASE_DB_URL}/${username}.json`, { 
+        await fetch(${FIREBASE_DB_URL}/${username}.json, { 
             method: 'DELETE' 
         });
         await fetchUsersFromCloud();
@@ -374,8 +377,8 @@ function navigate(pageId) {
 function updateNavbar() {
     const navLinks = document.getElementById('nav-links');
     if (!currentUser) { navLinks.innerHTML = ''; return; }
-    let html = cloudUsers[currentUser].isAdmin ? `<button onclick="navigate('admin')">Admin</button>` : '';
-    html += `<button onclick="navigate('calc')">Kalkulyator</button><button onclick="logout()" style="border-color:#f72585; color:#f72585;">Chiqish</button>`;
+    let html = cloudUsers[currentUser].isAdmin ? <button onclick="navigate('admin')">Admin</button> : '';
+    html += <button onclick="navigate('calc')">Kalkulyator</button><button onclick="logout()" style="border-color:#f72585; color:#f72585;">Chiqish</button>;
     navLinks.innerHTML = html;
 }
 
@@ -395,28 +398,28 @@ function renderAdminTable() {
     let tbody = document.getElementById('admin-user-table');
     tbody.innerHTML = '';
     for (let username in cloudUsers) {
-        if (!username || username === 'error' || cloudUsers[username].isAdmin) continue;
+        if (!username  username === 'error'  cloudUsers[username].isAdmin) continue;
         
         let loginTime = cloudUsers[username].lastLogin ? cloudUsers[username].lastLogin : '—';
-        let statusText = cloudUsers[username].isPremium ? `<span style="color:#4cc9f0; font-weight:bold;">ACTIVE</span>` : `<span style="color:#f72585;">O'CHIK</span>`;
+        let statusText = cloudUsers[username].isPremium ? <span style="color:#4cc9f0; font-weight:bold;">ACTIVE</span> : <span style="color:#f72585;">O'CHIK</span>;
         
         let actionBtn = cloudUsers[username].isPremium ? 
-            `<button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button>` : 
-            `<button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Berish</button>`;
+            <button class="action-btn btn-deactivate" onclick="togglePremium('${username}', false)">O'chirish</button> : 
+            <button class="action-btn btn-activate" onclick="togglePremium('${username}', true)">Berish</button>;
         
-        let deleteBtn = `<button class="action-btn btn-delete-user" onclick="confirmUserDeletion('${username}')">Uchirish</button>`;
+        let deleteBtn = <button class="action-btn btn-delete-user" onclick="confirmUserDeletion('${username}')">Uchirish</button>;
         
-        tbody.innerHTML += `<tr>
+        tbody.innerHTML += <tr>
             <td><strong style="color:#fff;">${username}</strong></td>
             <td style="color: #8892b0;">${loginTime}</td>
             <td>${statusText}</td>
             <td>${actionBtn} ${deleteBtn}</td>
-        </tr>`;
+        </tr>;
     }
 }
 
 function confirmUserDeletion(username) {
-    if(confirm(`Diqqat! "${username}" foydalanuvchisini Firebase bazasidan butunlay o'chirib yubormoqchisiz. Rozimisiz?`)) {
+    if(confirm(Diqqat! "${username}" foydalanuvchisini Firebase bazasidan butunlay o'chirib yubormoqchisiz. Rozimisiz?)) {
         deleteUserFromCloud(username);
     }
 }
@@ -453,7 +456,7 @@ function runQuadraticAlgo() {
     const low = parseFloat(document.getElementById('low').value);
     const decimals = assetType === 'gold' ? 3 : 5;
     
-    if (isNaN(high) || isNaN(low) || high <= low) {
+    if (isNaN(high)  isNaN(low)  high <= low) {
         alert("Iltimos, narxlarni to'g'ri kiriting! High nuqta Low'dan baland bo'lishi shart.");
         return;
     }
